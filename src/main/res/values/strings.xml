@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="aqrdt_app_name">android-qr-data-transfer</string>
+    <string name="aqrdt_instructions_show_to_client">Show this screen to the Client</string>
+    <string name="aqrdt_operation_enabling_wifi">Enabling Wi-Fi...</string>
+    <string name="aqrdt_error_connection_failed">Connect failed, please retry...</string>
+    <string name="aqrdt_error_invert_devices">Error: invert devices</string>
+    <string name="aqrdt_error_channel_lost">Channel lost </string>
+    <string name="aqrdt_error_channel_lost_retry">Channel lost, please wait...</string>
+</resources>
