@@ -2,13 +2,13 @@
 Library that provides a secure channel for data transmission between Android devices. It exploits QR-codes and Wi-Fi Direct technologies. 
 
 ## Why is it secure?
-Because the messages are exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement messages only. 
+Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement messages only. 
 
 ## How it works
 * During the transmission the sender device will act as a Server in a Client-Server architecture, while the receiver will act as a Client.
 * Server and Client turn on the Wi-Fi if not available.
 * Server and Client start the peer discovery.
-* The Server shows to the Client the first QR code, containing its MAC address ( necessary for the Wi-Fi Direct connection).
+* The Server shows to the Client the first QR code, containing its MAC address (necessary for the Wi-Fi Direct connection).
 * Client uses its camera and captures the first QR code, parses the message and gets the Server MAC address.
 * Client enstablishes a Wi-Fi Direct connection with the Server.
 * While not all the messages have been exchanged, loop the following:
@@ -17,17 +17,17 @@ Because the messages are exchanged via sequences of QR codes, while a Wi-Fi Dire
         * If the message is valid, send the ACK response.
         * If the message is not valid, try reading the QR code again.
     1. The Server receives the ACK response.
-        * If the ACK is valid, repeat from 1.
+        * If the ACK is valid, loop.
         * If the ACK is not valid, show an error message and exit.
 * If the transmission finishes with success, the data is returned to the Client. Otherwise an error message is shown.
 
 ## Features and advantages
-* It uses (https://en.wikipedia.org/wiki/Stop-and-wait_ARQ)[stop-and-wait protocol].
-* It receives an ArrayList<String> as input paramether, containing all the messages to be exchanges. For each String a new QR code will be created.
+* It uses the [stop-and-wait protocol](https://en.wikipedia.org/wiki/Stop-and-wait_ARQ).
+* It receives an ArrayList<String> as input parameter, containing all the messages to be exchanged. For each String a new QR code will be created.
 * If the Wi-Fi Direct is disabled, the library automatically turns it on.
 * Every exchanged message is checked with a digest (SHA-256).
 * Once set the data to be transferred, the library will do the rest, managing the connection and data transfer. 
-* If an error occured, the entire process is interrupted and no mesages are returned to the Client.
+* If an error occured, the entire process is interrupted and no message is returned to the Client.
 
 ## Usage
 The Server starts the Activity passing to it an ArrayList<String> containing the messages to be sent.
@@ -69,15 +69,15 @@ The Client can than handle the response in the onActivityResult(...) method:
 
 ## Diagrams
 Some UML diagrams for this project are available: 
-* Class diagram 
-* Sequence diagram (Server device).
-* Sequence diagram (Client device)
+* [Class diagram](/diagrams/class_diagram.png).
+* [Sequence diagram (Server device)](/diagrams/seq_diagram_server.png).
+* [Sequence diagram (Client device)](/diagrams/seq_diagram_client.png).
 
 ## Dependencies
 android-qr-data-transfer depends on the following external libraries. [con i link]
-* ZXing: used to encode/decode the QR codes.
-* ZXing Android Embedded: used to scan sequences of QR codes.
-* Others libraries from Android Support Library.
+* [ZXing](https://github.com/zxing/zxing): used to encode/decode the QR codes.
+* [ZXing Android Embedded](https://github.com/journeyapps/zxing-android-embedded): used to scan sequences of QR codes.
+* Others libraries from [Android Support Library](http://developer.android.com/tools/support-library/index.html).
 
 ## License
 	Copyright 2016 Riccardo Leschiutta
