@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="13.3">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>105</x>
+      <y>609</y>
+      <w>392</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::WiFiDirectBroadcastReceiver
+--
+- activity: TransferActivity
+- manager: WifiP2pManager
+- channel: Channel
+--
++ WiFiDirectBroadcastReceiver(WifiP2pManager m, Channel c, TransferActivity a): ctor
++ onReceive(Context context, Intent intent): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>343</x>
+      <y>210</y>
+      <w>252</w>
+      <h>322</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::TransferActivity
+--
+- manager: WifiP2pManager
+- receiver: BroadcastReceiver
+- mServerReceiver: ServerAckReceiver
+- iAmTheServer: boolean
+- serverIPAddress: String
+- serverFragment: ServerFragment
+- clientFragment: ClientFragment
+- messages: ArrayList&lt;String&gt;
+- attendedAck: String
+...
+--
+- stopServerReceiver(): void
+- createLayout(): void
++ updateThisDevice(String thisDeviceMAC): void
++ peersChanged(): void
++ messageReceived(String message): void
++ makeQRscanAvailable(boolean value): void
++ finishTransmissionWithSuccess(): void
++ finishTransmissionWithError(): void
++ sendNextMessage(): void
+- sendMessageAsQR(String messageToSend): void
+- sendAck(String ack): void
++ discoverPeers(): void
+- connect(String deviceMacAddress): void
++ onConnectionInfoAvailable(final WifiP2pInfo info): void
+- disconnect(): void
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>63</x>
+      <y>252</y>
+      <w>259</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::ServerFragment
+--
+- qrImageView: ImageView
+- qrInfoTextView: TextView
+- QR_WIDTH: int
+- QR_HEIGTH: int
+--
++ updateQR(String message): void
++ updateQRInfo(int index, int total): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>63</x>
+      <y>378</y>
+      <w>231</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::ServerAckReceiver
+--
+- activity: TransferActivity
+- ack: String
+- serverSocket: ServerSocket
+--
++ ServerAckReceiver(Context context): ctor
+# doInBackground(Void... params): Void
++ stopSocket(): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>546</x>
+      <y>546</y>
+      <w>287</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::MyUtils
+--
++ encodeAsBitmap(int width, int heigth, String message): Bitmap
++ calculateDigest(String message): String
++ encodeISO88591(byte[] bytes): String
++ getAckFromMessage(String message): String
++ getDigestFromMessage(String message): String
++ getContentFromMessage(String message): String
++ createRandomString(int numberOfBytes): String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>616</x>
+      <y>245</y>
+      <w>217</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::ClientFragment
+--
+- barcodeView: CompoundBarcodeView
+- activity: TransferActivity
+- previousMessage: String
+- canScan: boolean
+- callback: BarcodeCallback
+--
++ resetPreviousMessage(): void
++ canScan(boolean canScan): void
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>609</x>
+      <y>392</y>
+      <w>224</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9ba
+::ClientAckSender
+--
++ ClientAckSender(String name): ctor
++ ClientAckSender(): ctor
+# onHandleIntent(Intent intent): void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>343</x>
+      <y>525</y>
+      <w>77</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>90.0;10.0;90.0;40.0;10.0;40.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>189</x>
+      <y>224</y>
+      <w>168</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=0..1</panel_attributes>
+    <additional_attributes>220.0;10.0;10.0;10.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>588</x>
+      <y>224</y>
+      <w>168</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1
+m2=0..1</panel_attributes>
+    <additional_attributes>10.0;10.0;200.0;10.0;200.0;30.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>588</x>
+      <y>469</y>
+      <w>98</w>
+      <h>91</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;120.0;10.0;120.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>588</x>
+      <y>371</y>
+      <w>175</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>m1=0..1
+m2=1</panel_attributes>
+    <additional_attributes>210.0;30.0;210.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>525</x>
+      <y>525</y>
+      <w>21</w>
+      <h>217</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;290.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>490</x>
+      <y>637</y>
+      <w>42</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>40.0;130.0;40.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>168</x>
+      <y>357</y>
+      <w>189</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>m1=
+0..1 
+m2=1</panel_attributes>
+    <additional_attributes>10.0;30.0;10.0;10.0;250.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>259</x>
+      <y>728</y>
+      <w>483</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+android.net.wifi.p2p::WifiP2pManager
+--
++ discoverPeers(WifiP2pManager.Channel c, WifiP2pManager.ActionListener listener): void
++ requestConnectionInfo(WifiP2pManager.Channel c, WifiP2pManager.ConnectionInfoListener listener): void
++ removeGroup(WifiP2pManager.Channel c, WifiP2pManager.ActionListener listener): void
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>378</x>
+      <y>0</y>
+      <w>168</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+android.support.v4.app::Fragment
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>693</x>
+      <y>476</y>
+      <w>140</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+android.app::IntentService
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>756</x>
+      <y>441</y>
+      <w>21</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;50.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>91</x>
+      <y>497</y>
+      <w>112</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+android.os::AsyncTask
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>140</x>
+      <y>469</y>
+      <w>21</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>140</x>
+      <y>553</y>
+      <w>168</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+android.content::BroadcastReceiver
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>217</x>
+      <y>581</y>
+      <w>21</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>182</x>
+      <y>126</y>
+      <w>196</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+android.support.v4.app::FragmentActivity
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>273</x>
+      <y>154</y>
+      <w>175</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0;230.0;50.0;230.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>525</x>
+      <y>126</y>
+      <w>252</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+&lt;&lt; interface &gt;&gt;
+android.net.wifi.p2p.WifiP2pManager.ChannelListener
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>329</x>
+      <y>70</y>
+      <w>280</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>bg=#ffd9
+&lt;&lt; interface &gt;&gt;
+android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
+--
+halign=center
+...</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>462</x>
+      <y>105</y>
+      <w>56</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;realize&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>497</x>
+      <y>161</y>
+      <w>168</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt; realize&gt;&gt;</panel_attributes>
+    <additional_attributes>220.0;10.0;220.0;40.0;10.0;40.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>126</x>
+      <y>28</y>
+      <w>350</w>
+      <h>238</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>480.0;10.0;480.0;40.0;10.0;40.0;10.0;320.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>441</x>
+      <y>42</y>
+      <w>364</w>
+      <h>217</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;500.0;20.0;500.0;290.0</additional_attributes>
+  </element>
+</diagram>
