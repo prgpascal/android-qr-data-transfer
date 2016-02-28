@@ -1,36 +1,34 @@
 # android-qr-data-transfer
-Library that provides a secure channel for data transmission between Android devices. It exploits QR-codes and Wi-Fi Direct technologies. 
+Library that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
 
 ## Why is it secure?
-Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement messages only. 
+Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement ([ACK](https://en.wikipedia.org/wiki/Acknowledgement_(data_networks))) messages only. 
 
 ## How it works
-* During the transmission the sender device will act as a Server in a Client-Server architecture, while the receiver will act as a Client.
-* Server and Client turn on the Wi-Fi if not available.
+* During the transmission, the sender device will act as a Server in a [Client-Server architecture](https://en.wikipedia.org/wiki/Client%E2%80%93server_model), while the receiver as a Client.
+* Server and Client turn on the Wi-Fi if it's not turned on.
 * Server and Client start the peer discovery.
 * The Server shows to the Client the first QR code, containing its MAC address (necessary for the Wi-Fi Direct connection).
 * Client uses its camera and captures the first QR code, parses the message and gets the Server MAC address.
-* Client enstablishes a Wi-Fi Direct connection with the Server.
+* Client establishes a Wi-Fi Direct connection with the Server.
 * While not all the messages have been exchanged, loop the following:
     1. The Server encodes a new message into a QR code and waits for the ACK response.
     1. The Client reads the new QR code, gets the message and checks the digest:
-        * If the message is valid, send the ACK response.
-        * If the message is not valid, try reading the QR code again.
+        * If the message is valid, sends the ACK response.
+        * If the message is not valid, tries reading the QR code again.
     1. The Server receives the ACK response.
-        * If the ACK is valid, loop.
-        * If the ACK is not valid, show an error message and exit.
+        * If the ACK is not valid, stops the transmission with an error.
 * If the transmission finishes with success, the data is returned to the Client. Otherwise an error message is shown.
 
-## Features and advantages
+## Features
 * It uses the [stop-and-wait protocol](https://en.wikipedia.org/wiki/Stop-and-wait_ARQ).
-* It receives an ArrayList<String> as input parameter, containing all the messages to be exchanged. For each String a new QR code will be created.
-* If the Wi-Fi Direct is disabled, the library automatically turns it on.
-* Every exchanged message is checked with a digest (SHA-256).
-* Once set the data to be transferred, the library will do the rest, managing the connection and data transfer. 
-* If an error occured, the entire process is interrupted and no message is returned to the Client.
+* It receives an ArrayList\<String> as input parameter, containing all the messages to be exchanged. For each String a new QR code will be created.
+* If the Wi-Fi Direct is disabled, the library will automatically turn it on.
+* Every exchanged message is checked with a digest ([SHA-256](https://en.wikipedia.org/wiki/SHA-2)).
+* If an error occurred, the entire process is interrupted and no data is returned to the receiver.
 
 ## Usage
-The Server starts the Activity passing to it an ArrayList<String> containing the messages to be sent.
+The sender starts the Activity passing to it an ArrayList\<String> containing the messages to be sent:
 ```java
 // Define the params
 Bundle b = new Bundle();
@@ -42,7 +40,7 @@ intent.putExtras(b);
 // Start the Activity for result
 startActivityForResult(intent, DATA_EXCHANGE_REQUEST);
 ```
-The Client starts the Activity in this manner:
+The receiver starts the Activity:
 ```java
 // Define the params
 Bundle b = new Bundle();
@@ -53,7 +51,7 @@ intent.putExtras(b);
 // Start the Activity for result
 startActivityForResult(intent, DATA_EXCHANGE_REQUEST);
 ```
-The Client can than handle the response in the onActivityResult(...) method:
+The Client can handle the response in the onActivityResult(...) method:
 ```java
 @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -68,13 +66,13 @@ The Client can than handle the response in the onActivityResult(...) method:
 ```
 
 ## Diagrams
-Some UML diagrams for this project are available: 
+Some UML diagrams are available for this project:
 * [Class diagram](/diagrams/class_diagram.png).
 * [Sequence diagram (Server device)](/diagrams/seq_diagram_server.png).
 * [Sequence diagram (Client device)](/diagrams/seq_diagram_client.png).
 
 ## Dependencies
-android-qr-data-transfer depends on the following external libraries. [con i link]
+android-qr-data-transfer depends on the following external libraries:
 * [ZXing](https://github.com/zxing/zxing): used to encode/decode the QR codes.
 * [ZXing Android Embedded](https://github.com/journeyapps/zxing-android-embedded): used to scan sequences of QR codes.
 * Others libraries from [Android Support Library](http://developer.android.com/tools/support-library/index.html).
