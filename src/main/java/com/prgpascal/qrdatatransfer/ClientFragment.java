@@ -41,7 +41,6 @@ public class ClientFragment extends Fragment {
     private String previousMessage = "";        // Used to check if a message has already been read
     private boolean canScan = false;            // When true the camera can read QR codes.
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -49,8 +48,6 @@ public class ClientFragment extends Fragment {
 
         return mContentView;
     }
-
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -63,8 +60,6 @@ public class ClientFragment extends Fragment {
         barcodeView = (CompoundBarcodeView) getView().findViewById(R.id.qr_scanner);
         barcodeView.decodeContinuous(callback);
     }
-
-
 
     /**
      * Callback for the Barcode reader.
@@ -96,7 +91,7 @@ public class ClientFragment extends Fragment {
                         activity.messageReceived(message);
 
                     } else {
-                        // Message already read previously... do nothing...
+                        // Message already read... do nothing...
                     }
                 }
             }
@@ -107,18 +102,14 @@ public class ClientFragment extends Fragment {
         }
     };
 
-
-
     /**
-     * Reset the previous read message.
+     * Reset the previously read message.
      * Called when an error occured during the QR scan.
      * The QR code can now be read again.
      */
     public void resetPreviousMessage(){
         previousMessage = "";
     }
-
-
 
     /**
      * Tell the QR code reader if it can read for QR codes or not.
@@ -127,8 +118,6 @@ public class ClientFragment extends Fragment {
     public void canScan(boolean canScan){
         this.canScan = canScan;
     }
-
-
 
     @Override
     public void onResume() {

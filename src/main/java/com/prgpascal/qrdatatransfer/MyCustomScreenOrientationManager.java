@@ -22,7 +22,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.view.WindowManager;
 
-
 /**
  * Class that locks and unlocks the Screen orientation.
  * When the screen is locked, the screen orientation is fixed. This prevents exceptions that can be thrown
@@ -49,7 +48,6 @@ public class MyCustomScreenOrientationManager {
         }
     }
 
-
     /** Unlocks the current screen orientation */
     public static void unlockScreen(Activity context){
 
@@ -58,7 +56,6 @@ public class MyCustomScreenOrientationManager {
             context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
     }
-
 
     /** Get the current screen orientation type */
     private static int currentScreenOrientation(Context context){

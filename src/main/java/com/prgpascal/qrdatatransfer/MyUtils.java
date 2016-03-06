@@ -82,8 +82,6 @@ public class MyUtils {
         return bitmap;
     }
 
-
-
     /**
      * Method that calculates the SHA-256 digest of a ISO-8859-1 String.
      *
@@ -106,8 +104,6 @@ public class MyUtils {
         return null;
     }
 
-
-
     /**
      * Encode a byte Array into ISO-8859-1 String.
      * Null if encode failed.
@@ -129,8 +125,6 @@ public class MyUtils {
         return null;
     }
 
-
-
     /**
      * Method that returns the ACK of a given message.
      * (The first 2 bytes)
@@ -141,8 +135,6 @@ public class MyUtils {
     public static String getAckFromMessage(String message){
         return message.substring(0, ACK_LENGTH);
     }
-
-
 
     /**
      * Method that returns the digest of a given message.
@@ -155,8 +147,6 @@ public class MyUtils {
         return message.substring(message.length() - DIGEST_LENGTH);
     }
 
-
-
     /**
      * Method that excludes the ACK and the digest from the message.
      * Return the message content.
@@ -167,8 +157,6 @@ public class MyUtils {
     public static String getContentFromMessage(String message){
         return message.substring(ACK_LENGTH, message.length() - DIGEST_LENGTH);
     }
-
-
 
     /**
      * Create an ISO-8859-1 String with random bytes.
@@ -184,5 +172,4 @@ public class MyUtils {
 
         return encodeISO88591(bytes);
     }
-
 }

@@ -37,7 +37,6 @@ import java.util.ArrayList;
 
 import static com.prgpascal.qrdatatransfer.Constants.*;
 
-
 /**
  * Activity that performs the transmission of messages between the Client and the Server.
  */
@@ -51,30 +50,25 @@ public class TransferActivity extends FragmentActivity implements
     private IntentFilter intentFilter;
     private BroadcastReceiver receiver = null;
 
-
     // ServerAckReceiver
     private ServerAckReceiver mServerReceiver;
     private boolean iAmTheServer = false;
     private String serverIPAddress;             // Required for Socket connection.
 
-
     // Client/Server fragments (only one of these will be instantiated)
     private ServerFragment serverFragment;
     private ClientFragment clientFragment;
-
 
     // Messages to be exchanged
     private ArrayList<String> messages = new ArrayList<>();         // Strings that contain the messages to be transferred.
     private int messagesIndex = 0;                                  // Used to scan the messages ArrayList.
     private String attendedAck;                                     // Ack attended by the Server.
 
-
     // About the transmission
     public boolean isFinishingTransmission = false;     // TRUE if the Server sends the EOT message, so it's in "finishing" state.
     public boolean isConnected = false;                 // TRUE if Client and Server are connected each other via Wifi Direct.
     private boolean retryConnection = false;            // TRUE if I'm trying to re-connect after an error occured.
     private boolean peerDiscoveryFinished = false;      // TRUE if the first peer discovery has finished.
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,10 +98,8 @@ public class TransferActivity extends FragmentActivity implements
         createLayout();
     }
 
-
-
     /**
-     * Read and check all the Intext extra parameters.
+     * Read and check all the Intent extra parameters.
      * If one or more required parameter are missing, finish the Activity with an error.
      */
     private void checkAndGetIntentExtras(Bundle extras){
@@ -136,8 +128,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     /**
      * Delete all previous persistent Wifi Direct groups, for privacy reasons and
      * to avoid the reuse of previously created groups.
@@ -159,8 +149,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -170,8 +158,6 @@ public class TransferActivity extends FragmentActivity implements
         registerReceiver(receiver, intentFilter);
     }
 
-
-
     @Override
     public void onPause() {
         super.onPause();
@@ -179,8 +165,6 @@ public class TransferActivity extends FragmentActivity implements
         // Unregister the broadcast receiver
         unregisterReceiver(receiver);
     }
-
-
 
     @Override
     public void onStop(){
@@ -195,8 +179,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     /** Stop the ServerReceiver AsyncTask. */
     private void stopServerReceiver(){
         try {
@@ -206,8 +188,6 @@ public class TransferActivity extends FragmentActivity implements
             e.printStackTrace();
         }
     }
-
-
 
     /** Create the layout */
     private void createLayout() {
@@ -227,8 +207,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     /**
      *  Called when info about this device are available.
      *  If this device is the Server, create the QR code with the MAC address.
@@ -243,8 +221,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     /**
      * Called when the peers list has changed.
      * This method is called the first time when the peer discovery has finished.
@@ -257,8 +233,6 @@ public class TransferActivity extends FragmentActivity implements
             makeQRscanAvailable(true);
         }
     }
-
-
 
     /**
      * Manipulate the incoming message.
@@ -340,8 +314,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     /**
      * Allow the Client camera to read QR codes.
      * - Initially is set to FALSE.
@@ -356,8 +328,6 @@ public class TransferActivity extends FragmentActivity implements
             clientFragment.canScan(value);
         }
     }
-
-
 
     /**
      * Method called when the transmission ended:
@@ -379,8 +349,6 @@ public class TransferActivity extends FragmentActivity implements
         finish();
     }
 
-
-
     /**
      * Method called when an irreversible error occured:
      * - The Client can't connect to the Server via Wifi Direct.
@@ -396,8 +364,6 @@ public class TransferActivity extends FragmentActivity implements
         setResult(Activity.RESULT_CANCELED, returnIntent);
         finish();
     }
-
-
 
     /** Request for a new message to be sent as QR code. */
     public void sendNextMessage(){
@@ -415,8 +381,6 @@ public class TransferActivity extends FragmentActivity implements
             sendMessageAsQR(newMessage);
         }
     }
-
-
 
     /**
      * Send the message to the Client, so the QR ImageView of the Server must be updated.
@@ -437,8 +401,6 @@ public class TransferActivity extends FragmentActivity implements
         serverFragment.updateQR(attendedAck + messageToSend + digest, messagesIndex+1, messages.size()+1);
     }
 
-
-
     /**
      * Send a new ACK to the Server.
      *
@@ -454,8 +416,6 @@ public class TransferActivity extends FragmentActivity implements
         startService(sendMessageIntent);
     }
 
-
-
     /** Discovers for peers. Must call this method before the peers connection. */
     public void discoverPeers() {
         manager.discoverPeers(channel, new ActionListener() {
@@ -470,8 +430,6 @@ public class TransferActivity extends FragmentActivity implements
             }
         });
     }
-
-
 
     /**
      * Connect to the desired peer.
@@ -501,8 +459,6 @@ public class TransferActivity extends FragmentActivity implements
             }
         });
     }
-
-
 
     /**
      * Connected with the other peer.
@@ -542,8 +498,6 @@ public class TransferActivity extends FragmentActivity implements
         }
     }
 
-
-
     /** Disconnect from Wifi Direct. */
     private void disconnect() {
         // Now I'm disconnected.
@@ -563,8 +517,6 @@ public class TransferActivity extends FragmentActivity implements
         });
     }
 
-
-
     @Override
     public void onChannelDisconnected() {
         // Try connecting again
@@ -577,5 +529,4 @@ public class TransferActivity extends FragmentActivity implements
             Toast.makeText(this, R.string.aqrdt_error_channel_lost, Toast.LENGTH_LONG).show();
         }
     }
-
 }

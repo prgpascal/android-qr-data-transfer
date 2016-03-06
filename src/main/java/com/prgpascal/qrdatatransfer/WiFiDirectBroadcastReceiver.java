@@ -34,8 +34,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager manager;         // Wifi manager
     private Channel channel;                // Wifi channel
 
-
-
     /** Constructor */
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager,
                                        Channel channel,
@@ -45,7 +43,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         this.channel = channel;
         this.activity = activity;
     }
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -93,7 +90,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                     activity.finishTransmissionWithError();
                 }
             }
-
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // This device's wifi p2p connection state changed.
