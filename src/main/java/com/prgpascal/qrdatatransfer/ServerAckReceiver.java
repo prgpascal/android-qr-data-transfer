@@ -27,7 +27,6 @@ import java.nio.charset.Charset;
 
 import static com.prgpascal.qrdatatransfer.Constants.SERVER_PORT;
 
-
 /**
  * AsyncTask that contains waits for incoming socket connections.
  * (Infinite loop).
@@ -37,12 +36,10 @@ public class ServerAckReceiver extends AsyncTask<Void, Void, Void> {
     private String ack;                     // Ack received
     private ServerSocket serverSocket;      // Server Socket
 
-
     /** Constructor */
     public ServerAckReceiver(Context context) {
         this.activity = (TransferActivity)context;
     }
-
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -61,10 +58,8 @@ public class ServerAckReceiver extends AsyncTask<Void, Void, Void> {
                     }
                 });
 
-
                 // Wait for client connections (BLOCKING CALL!!)
                 Socket client = serverSocket.accept();
-
 
                 // If this code is reached, a client has connected and transferred data
                 // Read the input data
@@ -77,7 +72,6 @@ public class ServerAckReceiver extends AsyncTask<Void, Void, Void> {
                 }
 
                 in.close();
-
 
                 // Send the received Ack message to the Activity
                 activity.runOnUiThread(new Runnable() {
@@ -93,8 +87,6 @@ public class ServerAckReceiver extends AsyncTask<Void, Void, Void> {
             return null;
         }
     }
-
-
 
     /** Close the Server Socket */
     public void stopSocket() {

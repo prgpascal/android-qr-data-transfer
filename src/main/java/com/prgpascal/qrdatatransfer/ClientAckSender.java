@@ -42,7 +42,6 @@ public class ClientAckSender extends IntentService {
         super("ClientAckSender");
     }
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
         // Check if the request is correct

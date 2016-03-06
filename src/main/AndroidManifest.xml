@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.prgpascal.qrdatatransfer">
+    package="com.prgpascal.qrdatatransfer"
+    android:versionCode="2"
+    android:versionName="1.0.1">
 
     <uses-sdk android:minSdkVersion="14" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -14,7 +16,7 @@
 
     <application
         android:allowBackup="false"
-        android:supportsRtl="true">
+        android:supportsRtl="false">
 
         <activity
             android:name=".TransferActivity"
@@ -27,5 +29,4 @@
         </service>
 
     </application>
-
 </manifest>

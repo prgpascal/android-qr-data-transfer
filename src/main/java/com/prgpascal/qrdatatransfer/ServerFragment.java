@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.google.zxing.WriterException;
 
-
 /**
  * Fragment that contains the ImageView used for QR transmission.
  * For the QR generation I used the a code found here:
@@ -39,7 +38,6 @@ public class ServerFragment extends Fragment {
     private final int QR_WIDTH = 600;       // Width of the QR-code.
     private final int QR_HEIGTH = 600;      // Height of the QR-code.
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -47,7 +45,6 @@ public class ServerFragment extends Fragment {
 
         return mContentView;
     }
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,8 +54,6 @@ public class ServerFragment extends Fragment {
         qrImageView = (ImageView) getView().findViewById(R.id.qr_viewer);
         qrInfoTextView = (TextView) getView().findViewById(R.id.qr_info);
     }
-
-
 
     /**
      * Update the QR ImageView with a new QR containing the given message.
