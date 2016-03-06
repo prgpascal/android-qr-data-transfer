@@ -29,7 +29,7 @@ import com.google.zxing.WriterException;
 
 /**
  * Fragment that contains the ImageView used for QR transmission.
- * For the QR generation I used the a code found here:
+ * For the QR generation I used the code found here:
  * http://stackoverflow.com/questions/28827407/generate-designer-2d-qr-code-in-android/30529519#30529519
  */
 public class ServerFragment extends Fragment {
@@ -56,7 +56,7 @@ public class ServerFragment extends Fragment {
     }
 
     /**
-     * Update the QR ImageView with a new QR containing the given message.
+     * Update the QR ImageView with a new QR code containing the given message.
      *
      * @param message the message to be encoded into a new QR code.
      */
@@ -68,7 +68,7 @@ public class ServerFragment extends Fragment {
             // Update the QR View
             qrImageView.setImageBitmap(bitmap);
 
-            // Update the QR Infos
+            // Update the QR Info
             qrInfoTextView.setText("QR "+currentQrNumber+" / "+totalQrNumber);
 
         } catch (WriterException e) {

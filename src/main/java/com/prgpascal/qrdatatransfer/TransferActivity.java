@@ -99,7 +99,7 @@ public class TransferActivity extends FragmentActivity implements
     }
 
     /**
-     * Read and check all the Intext extra parameters.
+     * Read and check all the Intent extra parameters.
      * If one or more required parameter are missing, finish the Activity with an error.
      */
     private void checkAndGetIntentExtras(Bundle extras){

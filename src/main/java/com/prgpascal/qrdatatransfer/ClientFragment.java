@@ -91,7 +91,7 @@ public class ClientFragment extends Fragment {
                         activity.messageReceived(message);
 
                     } else {
-                        // Message already read previously... do nothing...
+                        // Message already read... do nothing...
                     }
                 }
             }
@@ -103,7 +103,7 @@ public class ClientFragment extends Fragment {
     };
 
     /**
-     * Reset the previous read message.
+     * Reset the previously read message.
      * Called when an error occured during the QR scan.
      * The QR code can now be read again.
      */

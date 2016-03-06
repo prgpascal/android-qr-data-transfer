@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 import static com.prgpascal.qrdatatransfer.Constants.SERVER_PORT;
 
 /**
- * AsyncTask that contains waits for incoming socket connections.
+ * AsyncTask that waits for incoming socket connections.
  * (Infinite loop).
  */
 public class ServerAckReceiver extends AsyncTask<Void, Void, Void> {
@@ -47,7 +47,7 @@ public class ServerAckReceiver extends AsyncTask<Void, Void, Void> {
             // Create the Server Socket
             serverSocket  = new ServerSocket(SERVER_PORT);
 
-            // Infinite loop that waits for incoming acks
+            // Infinite loop that waits for incoming ACKs
             while(true) {
 
                 // Request next QR code generation
