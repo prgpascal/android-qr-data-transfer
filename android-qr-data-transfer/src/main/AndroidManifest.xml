@@ -14,10 +14,7 @@
     <!--  Market filtering -->
     <uses-feature android:name="android.hardware.wifi.direct" android:required="true" />
 
-    <application
-        android:allowBackup="false"
-        android:supportsRtl="false">
-
+    <application>
         <activity
             android:name=".TransferActivity"
             android:theme="@style/AppTheme" >
@@ -27,6 +24,5 @@
             android:name=".ClientAckSender"
             android:exported="false">
         </service>
-
     </application>
 </manifest>
