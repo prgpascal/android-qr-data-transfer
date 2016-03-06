@@ -1,14 +1,13 @@
 # android-qr-data-transfer
-Library that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
-
+Module for Android Studio projects that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
 ## Why is it secure?
 Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement ([ACK](https://en.wikipedia.org/wiki/Acknowledgement_(data_networks))) messages only. 
 
 ## How it works
-* During the transmission, the sender device will act as a Server in a [Client-Server architecture](https://en.wikipedia.org/wiki/Client%E2%80%93server_model), while the receiver as a Client.
+* During the transmission, the sender device will act as a Server in a [Client-Server architecture](https://en.wikipedia.org/wiki/Client%E2%80%93server_model), while the receiver will act as a Client.
 * Server and Client turn on the Wi-Fi if it's not already turned on.
 * Server and Client start the peer discovery.
-* The Server shows to the Client the first QR code, containing its MAC address (necessary for the Wi-Fi Direct connection).
+* The Server shows to the Client the first QR code, containing the MAC address (necessary for the Wi-Fi Direct connection).
 * Client uses its camera and captures the first QR code, parses the message and gets the Server MAC address.
 * Client establishes a Wi-Fi Direct connection with the Server.
 * While not all the messages have been exchanged, loop the following:
@@ -22,13 +21,13 @@ Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channe
 
 ## Features
 * It uses the [stop-and-wait protocol](https://en.wikipedia.org/wiki/Stop-and-wait_ARQ).
-* It receives an ArrayList\<String> as input parameter, containing all the messages to be exchanged. For each String a new QR code will be created.
+* It receives an *ArrayList\<String>* as input parameter, containing all the messages to be exchanged. For each *String* a new QR code will be created.
 * If the Wi-Fi Direct is disabled, the library will automatically turn it on.
 * Every exchanged message is checked with a digest ([SHA-256](https://en.wikipedia.org/wiki/SHA-2)).
 * If an error occur, the entire process is interrupted and no data is returned to the receiver.
 
 ## Usage
-The sender starts the Activity passing an ArrayList\<String> as parameter, containing the messages to be sent:
+The sender starts the Activity passing an *ArrayList\<String>* as parameter, containing the messages to be sent:
 ```java
 // Define the params
 Bundle b = new Bundle();
@@ -51,14 +50,17 @@ intent.putExtras(b);
 // Start the Activity for result
 startActivityForResult(intent, DATA_EXCHANGE_REQUEST);
 ```
-The Client can handle the response in the onActivityResult(...) method:
+The Client can handle the response in the *onActivityResult(...)* method:
 ```java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	// Check which request we're responding to
 	if (requestCode == DATA_EXCHANGE_REQUEST) {
 	    if (resultCode == RESULT_OK) {
-	        messages = data.getStringArrayListExtra("messages");
+	        if (!data.getBooleanExtra("i_am_the_server", true)) {
+	            // I'm the Client, so get the data
+	            messages = data.getStringArrayListExtra("messages");
+	        }
 	    }
 	}
 	...
