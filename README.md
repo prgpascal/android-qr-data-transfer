@@ -26,6 +26,22 @@ Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channe
 * Every exchanged message is checked with a digest ([SHA-256](https://en.wikipedia.org/wiki/SHA-2)).
 * If an error occur, the entire process is interrupted and no data is returned to the receiver.
 
+## Import dependency
+You can use JitPack to easily import this library into your project.  
+Into your build.gradle:
+
+```groovy
+repositories {
+  maven {
+    url "https://jitpack.io"
+  }
+}
+
+dependencies {
+  compile 'com.github.prgpascal:android-qr-data-transfer:1.0.1'
+}
+```
+
 ## Usage
 The sender starts the Activity passing an *ArrayList\<String>* as parameter, containing the messages to be sent:
 ```java
