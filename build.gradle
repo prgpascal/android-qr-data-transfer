@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 
 repositories {
     jcenter()
-    maven { url "https://jitpack.io" }
 }
 
 android {
