@@ -1,11 +1,11 @@
 # android-qr-data-transfer
-Module for Android Studio projects that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
+Library that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
 ## Why is it secure?
 Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement ([ACK](https://en.wikipedia.org/wiki/Acknowledgement_(data_networks))) messages only. 
 
 ## How it works
 * During the transmission, the sender device will act as a Server in a [Client-Server architecture](https://en.wikipedia.org/wiki/Client%E2%80%93server_model), while the receiver will act as a Client.
-* Server and Client turn on the Wi-Fi if it's not already turned on.
+* Server and Client turn on the Wi-Fi (if it's not already turned on).
 * Server and Client start the peer discovery.
 * The Server shows to the Client the first QR code, containing the MAC address (necessary for the Wi-Fi Direct connection).
 * Client uses its camera and captures the first QR code, parses the message and gets the Server MAC address.
@@ -28,7 +28,7 @@ Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channe
 
 ## Import dependency
 You can use JitPack to easily import this library into your project.  
-Into your build.gradle:
+Put this into your build.gradle:
 
 ```groovy
 repositories {
