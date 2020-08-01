@@ -2,6 +2,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/android,intellij,eclipse,java,windows,osx
 # Edit at https://www.toptal.com/developers/gitignore?templates=android,intellij,eclipse,java,windows,osx
 
+### Custom
+gradlew.bat
+gradlew
+.idea/
+
 ### Android ###
 # Built application files
 *.apk
