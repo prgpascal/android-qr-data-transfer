@@ -16,6 +16,7 @@
 
 package com.prgpascal.qrdatatransfer;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,7 +41,7 @@ import static com.prgpascal.qrdatatransfer.Constants.*;
 /**
  * Activity that performs the transmission of messages between the Client and the Server.
  */
-public class TransferActivity extends FragmentActivity implements
+public class TransferActivity extends BaseActivity implements
         ChannelListener,
         WifiP2pManager.ConnectionInfoListener {
 
@@ -94,7 +95,11 @@ public class TransferActivity extends FragmentActivity implements
         // Delete previous persistent Wifi Direct groups
         deletePreviousPersistentGroups();
 
-        // Create the layout
+        checkAppPermissions();
+    }
+
+    @Override
+    public void permissionsGranted() {
         createLayout();
     }
 

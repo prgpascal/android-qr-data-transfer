@@ -21,4 +21,5 @@
     <string name="aqrdt_error_invert_devices">Error: invert devices</string>
     <string name="aqrdt_error_channel_lost">Channel lost </string>
     <string name="aqrdt_error_channel_lost_retry">Channel lost, please wait...</string>
+    <string name="aqrdt_error_no_permissions">No permission granted</string>
 </resources>
