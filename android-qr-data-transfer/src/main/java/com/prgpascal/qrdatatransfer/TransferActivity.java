@@ -45,6 +45,9 @@ public class TransferActivity extends BaseActivity implements
         ChannelListener,
         WifiP2pManager.ConnectionInfoListener {
 
+    public static final String PARAM_I_AM_THE_SERVER = "i_am_the_server";
+    public static final String PARAM_MESSAGES = "messages";
+
     // Wifi Direct objects
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
