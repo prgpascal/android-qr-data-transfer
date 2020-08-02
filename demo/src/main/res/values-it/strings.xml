@@ -4,7 +4,7 @@
     <string name="welcome_message">Inserire qui il testo da trasferire</string>
     <string name="server_message">Io sono il server</string>
     <string name="start_button">Inizia trasferimento</string>
-    <string name="sent">Inviato:</string>
-    <string name="received">Ricevuto:</string>
+    <string name="sent">Testo inviato correttamente</string>
+    <string name="received">Testo ricevuto correttamente</string>
 
 </resources>

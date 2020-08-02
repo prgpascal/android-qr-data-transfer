@@ -87,10 +87,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setOnFinishMessage(receivedMessage: List<String>, iAmTheServer: Boolean) {
         transferResultView.text = buildString {
-            append(if (iAmTheServer) getString(R.string.sent) else getString(R.string.received)).append(":\n")
+            append(if (iAmTheServer) getString(R.string.sent) else getString(R.string.received)).append("\n\n")
             receivedMessage.forEach {
                 append(it)
             }
         }
+        transferResultView.visibility = View.VISIBLE
     }
 }
