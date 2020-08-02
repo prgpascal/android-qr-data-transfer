@@ -18,14 +18,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        modeChooserSwitch.setOnCheckedChangeListener { _, isChecked ->
-            editText.visibility = if (isChecked) View.VISIBLE else View.GONE
-            setStartButtonVisibility()
+        modeChooserSwitch.setOnCheckedChangeListener { _, _ ->
+            setEditTextVisibility()
+            setStartButtonEnabledOrNot()
         }
 
         editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
-                setStartButtonVisibility()
+                setStartButtonEnabledOrNot()
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int,
@@ -42,7 +42,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setStartButtonVisibility() {
+    private fun setEditTextVisibility() {
+        val isChecked = modeChooserSwitch.isChecked
+        editText.visibility = if (isChecked) View.VISIBLE else View.GONE
+    }
+
+    private fun setStartButtonEnabledOrNot() {
         if (!modeChooserSwitch.isChecked) {
             startButton.isEnabled = true
         } else {
@@ -53,43 +58,38 @@ class MainActivity : AppCompatActivity() {
 
     private fun startTransfer() {
         val iAmTheServer = modeChooserSwitch.isChecked
-        val textToTransfer = editText.text // TODO: split text
-        val messages = arrayListOf("H", "hy", "lorem", "bla")
+        val chunkedTextToTransfer = ArrayList(editText.text.chunked(40))
 
         val intent = Intent(this, TransferActivity::class.java)
         val bundle = Bundle()
-        bundle.putBoolean("i_am_the_server", iAmTheServer)
-        bundle.putStringArrayList("messages", messages)
+        bundle.putBoolean(TransferActivity.PARAM_I_AM_THE_SERVER, iAmTheServer)
+        bundle.putStringArrayList(TransferActivity.PARAM_MESSAGES, chunkedTextToTransfer)
         intent.putExtras(bundle)
 
         startActivityForResult(intent, DATA_EXCHANGE_REQUEST)
-    }
-
-    private fun setOnFinishMessage(receivedMessage: List<String>, iAmTheServer: Boolean) {
-        transferResultView.text = buildString {
-            if (iAmTheServer) {
-                append("Sent:\n")
-            } else {
-                append("Received:\n")
-            }
-
-            receivedMessage.forEach {
-                append(it)
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == DATA_EXCHANGE_REQUEST) {
             if (resultCode == RESULT_OK) {
-                val iAmTheServer = data?.getBooleanExtra("i_am_the_server", false) ?: false
+                val iAmTheServer = data?.getBooleanExtra(TransferActivity.PARAM_I_AM_THE_SERVER, false)
+                        ?: false
                 var messages = emptyList<String>()
                 if (!iAmTheServer) {
-                    // I'm the Client, so get the data
-                    messages = data?.getStringArrayListExtra("messages") ?: emptyList<String>()
+                    messages = data?.getStringArrayListExtra(TransferActivity.PARAM_MESSAGES)
+                            ?: emptyList()
                 }
                 setOnFinishMessage(messages, iAmTheServer)
+            }
+        }
+    }
+
+    private fun setOnFinishMessage(receivedMessage: List<String>, iAmTheServer: Boolean) {
+        transferResultView.text = buildString {
+            append(if (iAmTheServer) getString(R.string.sent) else getString(R.string.received)).append(":\n")
+            receivedMessage.forEach {
+                append(it)
             }
         }
     }

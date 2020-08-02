@@ -18,7 +18,7 @@
         android:inputType="textMultiLine"
         android:layout_height="wrap_content"
         android:autofillHints="@string/welcome_message"
-        android:lines="4"/>
+        android:minLines="4"/>
 
     <Button
         android:id="@+id/startButton"

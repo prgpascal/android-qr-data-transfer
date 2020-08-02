@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">demo</string>
+    <string name="app_name">android-qr-data-transfer demo</string>
 
-    <string name="welcome_message">Insert here the text to be transfer</string>
+    <string name="welcome_message">Put here the text to be transferred</string>
     <string name="server_message">I am the server</string>
-    <string name="start_button">Inizia</string>
+    <string name="start_button">Start transfer</string>
+    <string name="sent">Sent:</string>
+    <string name="received">Received:</string>
 
 </resources>
