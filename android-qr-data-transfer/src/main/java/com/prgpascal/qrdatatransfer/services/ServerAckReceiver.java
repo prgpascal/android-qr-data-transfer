@@ -27,8 +27,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
-import static com.prgpascal.qrdatatransfer.utils.Constants.SERVER_PORT;
-
 /**
  * AsyncTask that waits for incoming socket connections.
  * (Infinite loop).
