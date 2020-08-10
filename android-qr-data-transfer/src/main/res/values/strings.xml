@@ -14,6 +14,7 @@
     limitations under the License. -->
 
 <resources>
+    <string name="aqrt_qr_counter" translatable="false">QR %1$d / %2$d</string>
     <string name="aqrdt_app_name">android-qr-data-transfer</string>
     <string name="aqrdt_instructions_show_to_client">Show this screen to the Client</string>
     <string name="aqrdt_operation_enabling_wifi">Enabling Wi-Fi…</string>
