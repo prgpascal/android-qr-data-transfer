@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +25,9 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Toast;
+
+import com.prgpascal.qrdatatransfer.R;
+import com.prgpascal.qrdatatransfer.activities.TransferActivity;
 
 /**
  * BroadcastReceiver that receives Wifi events.

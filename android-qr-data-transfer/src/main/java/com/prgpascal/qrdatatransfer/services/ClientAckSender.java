@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.services;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
-import static com.prgpascal.qrdatatransfer.Constants.*;
+import static com.prgpascal.qrdatatransfer.utils.Constants.*;
 
 /**
  * IntentService class used for the transmission of the Acknowledgment messages to

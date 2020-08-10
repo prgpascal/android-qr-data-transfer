@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.utils;
 
 import android.app.Activity;
 import android.content.Context;

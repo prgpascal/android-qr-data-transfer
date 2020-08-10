@@ -13,11 +13,11 @@
 
     <application>
         <activity
-            android:name=".TransferActivity"
+            android:name=".activities.TransferActivity"
             android:theme="@style/AppTheme" />
 
         <service
-            android:name=".ClientAckSender"
+            android:name=".services.ClientAckSender"
             android:exported="false" />
 
     </application>

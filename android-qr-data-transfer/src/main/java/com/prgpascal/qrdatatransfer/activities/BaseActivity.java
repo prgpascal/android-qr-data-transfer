@@ -1,9 +1,11 @@
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.widget.Toast;
+
+import com.prgpascal.qrdatatransfer.R;
 
 import java.util.ArrayList;
 

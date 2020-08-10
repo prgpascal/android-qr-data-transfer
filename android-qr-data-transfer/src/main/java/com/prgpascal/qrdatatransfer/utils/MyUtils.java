@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.utils;
 
 import android.graphics.Bitmap;
 import com.google.zxing.BarcodeFormat;
@@ -30,8 +30,8 @@ import java.security.SecureRandom;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static com.prgpascal.qrdatatransfer.Constants.ACK_LENGTH;
-import static com.prgpascal.qrdatatransfer.Constants.DIGEST_LENGTH;
+import static com.prgpascal.qrdatatransfer.utils.Constants.ACK_LENGTH;
+import static com.prgpascal.qrdatatransfer.utils.Constants.DIGEST_LENGTH;
 
 /**
  * Class that provides some useful functions.

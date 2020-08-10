@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.services;
 
 import android.content.Context;
 import android.os.AsyncTask;
+
+import com.prgpascal.qrdatatransfer.activities.TransferActivity;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,7 +27,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
-import static com.prgpascal.qrdatatransfer.Constants.SERVER_PORT;
+import static com.prgpascal.qrdatatransfer.utils.Constants.SERVER_PORT;
 
 /**
  * AsyncTask that waits for incoming socket connections.

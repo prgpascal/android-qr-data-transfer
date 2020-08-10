@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.fragments;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -26,6 +26,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.zxing.WriterException;
+import com.prgpascal.qrdatatransfer.R;
+import com.prgpascal.qrdatatransfer.utils.MyUtils;
 
 /**
  * Fragment that contains the ImageView used for QR transmission.

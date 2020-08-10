@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.activities;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,14 +28,22 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.prgpascal.qrdatatransfer.fragments.ClientFragment;
+import com.prgpascal.qrdatatransfer.utils.MyCustomScreenOrientationManager;
+import com.prgpascal.qrdatatransfer.R;
+import com.prgpascal.qrdatatransfer.services.ServerAckReceiver;
+import com.prgpascal.qrdatatransfer.fragments.ServerFragment;
+import com.prgpascal.qrdatatransfer.services.ClientAckSender;
+import com.prgpascal.qrdatatransfer.services.WiFiDirectBroadcastReceiver;
+import com.prgpascal.qrdatatransfer.utils.MyUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import static com.prgpascal.qrdatatransfer.Constants.*;
+import static com.prgpascal.qrdatatransfer.utils.Constants.*;
 
 /**
  * Activity that performs the transmission of messages between the Client and the Server.

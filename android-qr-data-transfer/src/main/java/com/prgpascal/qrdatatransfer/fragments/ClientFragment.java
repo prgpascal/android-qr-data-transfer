@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.prgpascal.qrdatatransfer;
+package com.prgpascal.qrdatatransfer.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -28,6 +28,8 @@ import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.CompoundBarcodeView;
+import com.prgpascal.qrdatatransfer.R;
+import com.prgpascal.qrdatatransfer.activities.TransferActivity;
 
 import java.util.List;
 
