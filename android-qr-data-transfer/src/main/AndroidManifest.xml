@@ -9,18 +9,16 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Market filtering -->
     <uses-feature android:name="android.hardware.wifi.direct" android:required="true" />
 
     <application>
         <activity
             android:name=".TransferActivity"
-            android:theme="@style/AppTheme" >
-        </activity>
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".ClientAckSender"
-            android:exported="false">
-        </service>
+            android:exported="false" />
+
     </application>
 </manifest>
