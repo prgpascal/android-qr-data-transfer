@@ -10,7 +10,7 @@ import androidx.fragment.app.FragmentActivity
 import com.prgpascal.qrdatatransfer.R
 import java.util.*
 
-abstract class BaseActivity : FragmentActivity() {
+abstract class PermissionsActivity : FragmentActivity() {
     companion object {
         private const val PERMISSIONS_REQUEST = 111
         private val PERMISSIONS = arrayOf(

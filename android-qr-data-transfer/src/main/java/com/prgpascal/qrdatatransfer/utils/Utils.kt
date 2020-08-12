@@ -176,11 +176,6 @@ fun lockScreen(context: Activity) {
     context.requestedOrientation = currentScreenOrientation(context)
 }
 
-/** Unlocks the current screen orientation  */
-fun unlockScreen(context: Activity) {
-    context.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-}
-
 /** Get the current screen orientation type  */
 private fun currentScreenOrientation(context: Context): Int {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

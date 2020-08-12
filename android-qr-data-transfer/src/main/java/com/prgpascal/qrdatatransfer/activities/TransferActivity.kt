@@ -22,10 +22,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
+import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -35,13 +35,14 @@ import com.prgpascal.qrdatatransfer.fragments.ServerFragment
 import com.prgpascal.qrdatatransfer.services.ClientAckSender
 import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
 import com.prgpascal.qrdatatransfer.services.WiFiDirectBroadcastReceiver
+import com.prgpascal.qrdatatransfer.services.WifiDirectCallbackInterface
 import com.prgpascal.qrdatatransfer.utils.*
 import java.util.*
 
 /**
  * Activity that performs the transmission of messages between the Client and the Server.
  */
-class TransferActivity : BaseActivity(), ChannelListener, ConnectionInfoListener {
+class TransferActivity : PermissionsActivity(), ChannelListener, WifiDirectCallbackInterface {
     companion object {
         const val PARAM_I_AM_THE_SERVER = I_AM_THE_SERVER
         const val PARAM_MESSAGES = MESSAGES
@@ -291,7 +292,7 @@ class TransferActivity : BaseActivity(), ChannelListener, ConnectionInfoListener
      * - Set TRUE when Client and Server are successfully connected via Wifi Direct.
      * - It will remain TRUE until transmission end.
      */
-   private fun makeQRscanAvailable(value: Boolean) {
+    private fun makeQRscanAvailable(value: Boolean) {
         if (!iAmTheServer) {
             clientFragment!!.canScan(value)
         }
@@ -305,7 +306,7 @@ class TransferActivity : BaseActivity(), ChannelListener, ConnectionInfoListener
      * This method will not stop the ServerReceiver neither will disconnect Wifi Direct,
      * because that will be done in onStop() method.
      */
-   private fun finishTransmissionWithSuccess() {
+    private fun finishTransmissionWithSuccess() {
         val returnIntent = Intent()
         returnIntent.putExtra(I_AM_THE_SERVER, iAmTheServer)
         if (!iAmTheServer) {
@@ -407,37 +408,6 @@ class TransferActivity : BaseActivity(), ChannelListener, ConnectionInfoListener
         })
     }
 
-    /**
-     * Connected with the other peer.
-     * This method is called after connection success.
-     * GROUP OWNER = Server (receives the ack messages).
-     * Update isConnected value and get the Server IP address.
-     * If I'm the Server, instantiate the ServerAckReceiver.
-     * If I'm the Client, now I'm ready to receive new incoming messages, make QR scan available.
-     *
-     * @param info the info about this connection.
-     */
-    override fun onConnectionInfoAvailable(info: WifiP2pInfo) {
-        isConnected = true
-        if (info.groupFormed) {
-            // Get the serverAddress (used for socket connection).
-            serverIPAddress = info.groupOwnerAddress.hostAddress
-            if (iAmTheServer && !info.isGroupOwner || !iAmTheServer && info.isGroupOwner) {
-                // Error, the Group Owner is not also the Server, devices must be inverted!
-                Toast.makeText(applicationContext, R.string.aqrdt_error_invert_devices, Toast.LENGTH_SHORT).show()
-            } else if (iAmTheServer) {
-                // I'm the Server, instantiate the ServerAckReceiver
-                if (mServerReceiver == null) {
-                    mServerReceiver = ServerAckReceiver(this@TransferActivity)
-                    mServerReceiver!!.execute()
-                }
-            } else {
-                // I'm the Client, make QR code scan available.
-                makeQRscanAvailable(true)
-            }
-        }
-    }
-
     /** Disconnect from Wifi Direct.  */
     private fun disconnect() {
         isConnected = false
@@ -462,4 +432,57 @@ class TransferActivity : BaseActivity(), ChannelListener, ConnectionInfoListener
             Toast.makeText(this, R.string.aqrdt_error_channel_lost, Toast.LENGTH_LONG).show()
         }
     }
+
+    override fun onWifiEnabled() {
+        discoverPeers()
+    }
+
+    /**
+     * Connected with the other peer.
+     * This method is called after connection success.
+     * GROUP OWNER = Server (receives the ack messages).
+     * Update isConnected value and get the Server IP address.
+     * If I'm the Server, instantiate the ServerAckReceiver.
+     * If I'm the Client, now I'm ready to receive new incoming messages, make QR scan available.
+     *
+     * @param info the info about this connection.
+     */
+    override fun onWifiConnectionInfoReceived(info: WifiP2pInfo) {
+        isConnected = true
+        if (info.groupFormed) {
+            // Get the serverAddress (used for socket connection).
+            serverIPAddress = info.groupOwnerAddress.hostAddress
+            if (iAmTheServer && !info.isGroupOwner || !iAmTheServer && info.isGroupOwner) {
+                // Error, the Group Owner is not also the Server, devices must be inverted!
+                Toast.makeText(applicationContext, R.string.aqrdt_error_invert_devices, Toast.LENGTH_SHORT).show()
+            } else if (iAmTheServer) {
+                // I'm the Server, instantiate the ServerAckReceiver
+                if (mServerReceiver == null) {
+                    mServerReceiver = ServerAckReceiver(this@TransferActivity)
+                    mServerReceiver!!.execute()
+                }
+            } else {
+                // I'm the Client, make QR code scan available.
+                makeQRscanAvailable(true)
+            }
+        }
+    }
+
+    override fun onWifiDisconnected() {
+        if (isConnected && !isFinishingTransmission) {
+            // Error: the other peer have disconnected during transmission.
+            // It's not legal because I'm not in "finishing" state.
+            // Finish the transmission with an error.
+            finishTransmissionWithError()
+        }
+    }
+
+    override fun onWifiPeersChanged() {
+        peersChanged()
+    }
+
+    override fun onWifiThisDeviceChanged(thisDevice: WifiP2pDevice) {
+        updateThisDevice(thisDevice.deviceAddress)
+    }
+
 }
