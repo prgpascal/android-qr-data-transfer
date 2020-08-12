@@ -42,7 +42,7 @@ class WiFiDirectBroadcastReceiver(private val wifiManager: WifiP2pManager,
                 if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                     wifiCallback.onWifiEnabled()
                 } else {
-                    // Error: Wifi Direct disabled, silently enable it.
+                    // Error: Wifi Direct disabled, enable it.
                     Toast.makeText(context.applicationContext, R.string.aqrdt_operation_enabling_wifi, Toast.LENGTH_SHORT).show()
                     val wifi = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
                     wifi.isWifiEnabled = true

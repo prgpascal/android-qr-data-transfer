@@ -172,7 +172,7 @@ fun createRandomString(numberOfBytes: Int): String? {
 }
 
 /** Lock the current screen orientation  */
-fun lockScreen(context: Activity) {
+fun preventScreenRotation(context: Activity) {
     context.requestedOrientation = currentScreenOrientation(context)
 }
 

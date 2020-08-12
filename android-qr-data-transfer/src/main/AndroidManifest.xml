@@ -13,7 +13,11 @@
 
     <application>
         <activity
-            android:name=".activities.TransferActivity"
+            android:name=".activities.ServerTransferActivity"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".activities.ClientTransferActivity"
             android:theme="@style/AppTheme" />
 
         <service

@@ -6,7 +6,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.prgpascal.qrdatatransfer.activities.TransferActivity
+import com.prgpascal.qrdatatransfer.activities.ClientTransferActivity
+import com.prgpascal.qrdatatransfer.activities.ServerTransferActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -57,37 +58,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startTransfer() {
-        val iAmTheServer = modeChooserSwitch.isChecked
         val chunkedTextToTransfer = ArrayList(editText.text.chunked(40))
 
-        val intent = Intent(this, TransferActivity::class.java)
-        val bundle = Bundle()
-        bundle.putBoolean(TransferActivity.PARAM_I_AM_THE_SERVER, iAmTheServer)
-        bundle.putStringArrayList(TransferActivity.PARAM_MESSAGES, chunkedTextToTransfer)
-        intent.putExtras(bundle)
+        val intent: Intent
+        if (iAmTheServer()) {
+            intent = Intent(this, ServerTransferActivity::class.java)
+            val bundle = Bundle()
+            bundle.putStringArrayList(ServerTransferActivity.PARAM_MESSAGES, chunkedTextToTransfer)
+            intent.putExtras(bundle)
+        } else {
+            intent = Intent(this, ClientTransferActivity::class.java)
+        }
 
         startActivityForResult(intent, DATA_EXCHANGE_REQUEST)
+    }
+
+    private fun iAmTheServer(): Boolean {
+        return modeChooserSwitch.isChecked
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == DATA_EXCHANGE_REQUEST) {
             if (resultCode == RESULT_OK) {
-                val iAmTheServer = data?.getBooleanExtra(TransferActivity.PARAM_I_AM_THE_SERVER, false)
-                        ?: false
-                var messages = emptyList<String>()
-                if (!iAmTheServer) {
-                    messages = data?.getStringArrayListExtra(TransferActivity.PARAM_MESSAGES)
-                            ?: emptyList()
-                }
-                setOnFinishMessage(messages, iAmTheServer)
+                val messages: List<String> = data?.getStringArrayListExtra(ServerTransferActivity.PARAM_MESSAGES)
+                        ?: emptyList()
+                setOnFinishMessage(messages)
             }
         }
     }
 
-    private fun setOnFinishMessage(receivedMessage: List<String>, iAmTheServer: Boolean) {
+    private fun setOnFinishMessage(receivedMessage: List<String>) {
         transferResultView.text = buildString {
-            append(if (iAmTheServer) getString(R.string.sent) else getString(R.string.received)).append("\n\n")
+            append(if (iAmTheServer()) getString(R.string.sent) else getString(R.string.received)).append("\n\n")
             receivedMessage.forEach {
                 append(it)
             }

@@ -17,7 +17,7 @@ package com.prgpascal.qrdatatransfer.services
 
 import android.content.Context
 import android.os.AsyncTask
-import com.prgpascal.qrdatatransfer.activities.TransferActivity
+import com.prgpascal.qrdatatransfer.activities.ServerTransferActivity
 import com.prgpascal.qrdatatransfer.utils.CHARACTER_SET_EXPANDED
 import com.prgpascal.qrdatatransfer.utils.SERVER_PORT
 import java.io.IOException
@@ -28,9 +28,11 @@ import java.nio.charset.Charset
 /**
  * AsyncTask that waits for incoming socket connections.
  * (Infinite loop).
+ * FOR SERVER!!!
  */
 class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
-    private val activity: TransferActivity = context as TransferActivity
+    private val serverCallback: ServerInterface = context as ServerInterface
+    private val context = context as ServerTransferActivity
     private val serverSocket = ServerSocket(SERVER_PORT)
     private lateinit var ack: String
 
@@ -53,8 +55,8 @@ class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
                 }
                 inputStreamReader.close()
 
-                // Send the received Ack message to the Activity
-                activity.runOnUiThread { activity.messageReceived(ack) }
+                // Send the received Ack message to the callback
+                context.runOnUiThread { serverCallback.ackReceived(ack) }
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -70,4 +72,8 @@ class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
         }
     }
 
+}
+
+interface ServerInterface {
+    fun ackReceived(ack: String)
 }

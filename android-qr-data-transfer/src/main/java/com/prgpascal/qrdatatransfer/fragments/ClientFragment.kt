@@ -18,6 +18,7 @@ package com.prgpascal.qrdatatransfer.fragments
 import android.content.Context
 import android.os.Bundle
 import android.os.Vibrator
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +27,6 @@ import com.google.zxing.ResultPoint
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.prgpascal.qrdatatransfer.R
-import com.prgpascal.qrdatatransfer.activities.TransferActivity
 import kotlinx.android.synthetic.main.aqrdt_client_fragment.*
 
 /**
@@ -34,8 +34,8 @@ import kotlinx.android.synthetic.main.aqrdt_client_fragment.*
  * It is instantiated by the Client.
  */
 class ClientFragment : Fragment() {
-    private lateinit var activity: TransferActivity
-    private var previousMessage = ""
+    private lateinit var clientCallback: ClientInterface
+    private var previousMessage: String? = null
     private var canScan = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -44,38 +44,34 @@ class ClientFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activity = getActivity() as TransferActivity
+        clientCallback = activity as ClientInterface
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        qr_scanner.decodeContinuous(callback)
+        qrScanner.decodeContinuous(barcodeCallback)
     }
 
     /**
      * Callback for the Barcode reader.
      * It receives BarcodeResult object that contains the incoming message.
      * This callback will read for incoming messages and if canScan is set to TRUE, it passes them to
-     * the main Activity, which will parse it.
-     * If a message has already been read, or canScan is FALSE, ignore it.
+     * the Activity, which will parse it.
+     * If a message has already been read, or canScan is FALSE, it will be ignored.
      */
-    private val callback: BarcodeCallback = object : BarcodeCallback {
+    private val barcodeCallback = object : BarcodeCallback {
         override fun barcodeResult(result: BarcodeResult) {
-            if (result.text != null) {
-                if (canScan) {
-                    val message = result.text
-                    if (message != previousMessage) {
-                        // Woooh, new message arrived !!
-                        // Let's vibrate for a while
-                        val v = activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                        v.vibrate(200)
+            if (!TextUtils.isEmpty(result.text) && canScan) {
+                val message = result.text
+                if (message != previousMessage) {
+                    // New message arrived. Let's vibrate for a while
+                    val v = context!!.applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                    v.vibrate(200)
 
-                        // Disable next lectures of the same QR
-                        previousMessage = message
+                    // Disable next lectures of the same QR
+                    previousMessage = message
 
-                        // Pass it to the activity
-                        activity.messageReceived(message)
-                    }
+                    clientCallback.messageReceived(message)
                 }
             }
         }
@@ -83,30 +79,25 @@ class ClientFragment : Fragment() {
         override fun possibleResultPoints(resultPoints: List<ResultPoint>) {}
     }
 
-    /**
-     * Reset the previously read message.
-     * Called when an error occurred during the QR scan.
-     * The QR code can now be read again.
-     */
     fun resetPreviousMessage() {
-        previousMessage = ""
+        previousMessage = null
     }
 
-    /**
-     * Tell the QR code reader if it can read for QR codes or not.
-     * It is set to TRUE when the Activity is ready to obtain QR messages from this Fragment.
-     */
     fun canScan(canScan: Boolean) {
         this.canScan = canScan
     }
 
     override fun onResume() {
         super.onResume()
-        qr_scanner.resume()
+        qrScanner.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        qr_scanner.pause()
+        qrScanner.pause()
     }
+}
+
+interface ClientInterface {
+    fun messageReceived(message: String)
 }
