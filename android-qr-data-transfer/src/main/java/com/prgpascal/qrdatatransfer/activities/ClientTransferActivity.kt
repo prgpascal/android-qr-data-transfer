@@ -34,6 +34,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     private var clientFragment: ClientFragment? = null
 
     private var messages = ArrayList<String>()
+    private var previousMessageAck: String? = null
 
     private var peerDiscoveryFinished = false
 
@@ -50,7 +51,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
             isConnected = true
             if (!info.isGroupOwner) {
                 serverIPAddress = info.groupOwnerAddress.hostAddress
-                makeQrScanAvailable(true)
+                startTransmission()
             } else {
                 // Error, the Client is the Group Owner. Devices must be inverted!
                 Toast.makeText(applicationContext, R.string.aqrdt_error_invert_devices, Toast.LENGTH_SHORT).show()
@@ -59,11 +60,12 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         }
     }
 
+    fun startTransmission() {
+        makeQrScanAvailable(true)
+    }
+
     override fun onWifiDisconnected() {
         if (isConnected && !isFinishingTransmission) {
-            // Error: the other peer have disconnected during transmission.
-            // It's not legal because I'm not in "finishing" state.
-            // Finish the transmission with an error.
             finishTransmissionWithError()
         }
     }
@@ -117,15 +119,19 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
 
                     content == TAG_EOT -> {
                         // EOT message, End of Transmission reached
-                        isFinishingTransmission = true
-                        sendAckToTheServer(ack)
-                        finishTransmissionWithSuccess()
+                        if (ack != previousMessageAck) {
+                            isFinishingTransmission = true
+                            finishTransmissionWithSuccess()
+                        }
+                        sendAckToServer(ack)
                     }
 
                     else -> {
                         // Regular message
-                        messages.add(content)
-                        sendAckToTheServer(ack)
+                        if (ack != previousMessageAck) {
+                            messages.add(content)
+                        }
+                        sendAckToServer(ack)
                     }
                 }
             } else {
@@ -135,13 +141,10 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         } catch (e: StringIndexOutOfBoundsException) {
             // The message received is smaller than expected or error on digest.
             e.printStackTrace()
-
-            // Allow the QR to be read again
-            clientFragment!!.resetPreviousMessage()
         }
     }
 
-    private fun sendAckToTheServer(ack: String) {
+    private fun sendAckToServer(ack: String) {
         val sendMessageIntent = Intent(this, ClientAckSender::class.java)
         sendMessageIntent.action = ACTION_SEND_ACK
         sendMessageIntent.putExtra(ACK, ack)

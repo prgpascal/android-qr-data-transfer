@@ -77,17 +77,22 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         if (info.groupFormed) {
             isConnected = true
             if (info.isGroupOwner) {
-                // Instantiate the ServerAckReceiver
-                if (serverAckReceiver == null) {
-                    serverAckReceiver = ServerAckReceiver(this@ServerTransferActivity)
-                    serverAckReceiver!!.execute()
-                }
+                startTransmission()
             } else {
                 // Error, the Server is not the Group Owner. Devices must be inverted!
                 Toast.makeText(applicationContext, R.string.aqrdt_error_invert_devices, Toast.LENGTH_SHORT).show()
                 finishTransmissionWithError()
             }
         }
+    }
+
+    fun startTransmission() {
+        // Instantiate the ServerAckReceiver
+        if (serverAckReceiver == null) {
+            serverAckReceiver = ServerAckReceiver(this@ServerTransferActivity)
+            serverAckReceiver!!.execute()
+        }
+        sendNextMessageAsQrCode()
     }
 
     override fun onWifiDisconnected() {
@@ -124,7 +129,7 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         } else {
             // The Ack is incorrect (irreversible error).
             // Finish the Activity.
-            finishTransmissionWithError()
+            //finishTransmissionWithError()
         }
     }
 

@@ -15,9 +15,7 @@
  */
 package com.prgpascal.qrdatatransfer.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.os.Vibrator
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -35,7 +33,6 @@ import kotlinx.android.synthetic.main.aqrdt_client_fragment.*
  */
 class ClientFragment : Fragment() {
     private lateinit var clientCallback: ClientInterface
-    private var previousMessage: String? = null
     private var canScan = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -62,25 +59,11 @@ class ClientFragment : Fragment() {
     private val barcodeCallback = object : BarcodeCallback {
         override fun barcodeResult(result: BarcodeResult) {
             if (!TextUtils.isEmpty(result.text) && canScan) {
-                val message = result.text
-                if (message != previousMessage) {
-                    // New message arrived. Let's vibrate for a while
-                    val v = context!!.applicationContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                    v.vibrate(200)
-
-                    // Disable next lectures of the same QR
-                    previousMessage = message
-
-                    clientCallback.messageReceived(message)
-                }
+                clientCallback.messageReceived(result.text)
             }
         }
 
         override fun possibleResultPoints(resultPoints: List<ResultPoint>) {}
-    }
-
-    fun resetPreviousMessage() {
-        previousMessage = null
     }
 
     fun canScan(canScan: Boolean) {

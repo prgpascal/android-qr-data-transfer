@@ -120,11 +120,6 @@ abstract class BaseTransferActivity : PermissionsActivity(), ChannelListener, Wi
         })
     }
 
-    private fun disableWifi() {
-        val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifi.isWifiEnabled = false
-    }
-
     private fun disconnectFromWifiDirect() {
         isConnected = false
         manager.removeGroup(channel, object : WifiP2pManager.ActionListener {
@@ -140,6 +135,7 @@ abstract class BaseTransferActivity : PermissionsActivity(), ChannelListener, Wi
 
     override fun onChannelDisconnected() {
         if (!retryConnection) {
+            // Retry connection
             Toast.makeText(applicationContext, R.string.aqrdt_error_channel_lost_retry, Toast.LENGTH_LONG).show()
             retryConnection = true
             manager.initialize(this, mainLooper, this)
