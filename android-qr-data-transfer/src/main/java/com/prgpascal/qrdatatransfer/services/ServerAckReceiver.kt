@@ -39,9 +39,6 @@ class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
             // Infinite loop that waits for incoming ACKs
             while (true) {
 
-                // Request next QR code generation
-                activity.runOnUiThread { activity.sendNextMessage() }
-
                 // Wait for client connections (THIS IS A BLOCKING CALL!!)
                 val client = serverSocket.accept()
 

@@ -228,6 +228,9 @@ class TransferActivity : PermissionsActivity(), ChannelListener, WifiDirectCallb
                     // EOT ack received, End of Transmission reached.
                     // Finish the transmission with success.
                     finishTransmissionWithSuccess()
+                } else {
+                    // Request next QR code generation
+                    sendNextMessage()
                 }
             } else {
                 // The Ack is incorrect (irreversible error).
