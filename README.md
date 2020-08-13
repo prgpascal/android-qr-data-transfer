@@ -13,7 +13,7 @@ Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channe
 * The Server shows to the Client the first QR code, containing the MAC address (necessary for the Wi-Fi Direct connection).
 * Client uses its camera and captures the first QR code, parses the message and gets the Server MAC address.
 * Client establishes a Wi-Fi Direct connection with the Server.
-* While not all the messages have been exchanged, loop the following:
+* While not all the messages have been exchanged:
     1. The Server encodes a new message into a QR code and waits for the ACK response.
     1. The Client reads the new QR code, gets the message and checks the digest:
         * If the message is valid, sends the ACK response.
@@ -27,7 +27,7 @@ Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channe
 * It receives an *ArrayList\<String>* as input parameter, containing all the messages to be exchanged. For each *String* a new QR code will be created.
 * If the Wi-Fi Direct is disabled, the library will automatically turn it on.
 * Every exchanged message is checked with a digest ([SHA-256](https://en.wikipedia.org/wiki/SHA-2)).
-* If an error occur, the entire process is interrupted and no data is returned to the receiver.
+* If an error occurs, the entire process is interrupted and no data is returned to the receiver.
 
 ## Import dependency
 You can use JitPack to easily import this library into your project.  
@@ -41,56 +41,37 @@ repositories {
 }
 
 dependencies {
-  compile 'com.github.prgpascal:android-qr-data-transfer:1.0.2'
+  compile 'com.github.prgpascal:android-qr-data-transfer:2.0.0'
 }
 ```
 
 ## Usage
 The sender starts the Activity passing an *ArrayList\<String>* as parameter, containing the messages to be sent:
 ```java
-// Define the params
-Bundle b = new Bundle();
-Intent intent = new Intent(this, TransferActivity.class);
-b.putBoolean("i_am_the_server", true);
-b.putStringArrayList("messages", messages);
-intent.putExtras(b);
-
-// Start the Activity for result
-startActivityForResult(intent, DATA_EXCHANGE_REQUEST);
+val intent = Intent(this, ServerTransferActivity::class.java)
+val bundle = Bundle()
+bundle.putStringArrayList(ServerTransferActivity.PARAM_MESSAGES, chunkedTextToTransfer)
+intent.putExtras(bundle)
+startActivityForResult(intent, DATA_EXCHANGE_REQUEST)
 ```
 The receiver starts the Activity:
 ```java
-// Define the params
-Bundle b = new Bundle();
-Intent intent = new Intent(this, TransferActivity.class);
-b.putBoolean("i_am_the_server", false);
-intent.putExtras(b);
-
-// Start the Activity for result
-startActivityForResult(intent, DATA_EXCHANGE_REQUEST);
+intent = Intent(this, ClientTransferActivity::class.java)
+startActivityForResult(intent, DATA_EXCHANGE_REQUEST)
 ```
 The Client can handle the response in the *onActivityResult(...)* method:
 ```java
-@Override
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	// Check which request we're responding to
-	if (requestCode == DATA_EXCHANGE_REQUEST) {
-	    if (resultCode == RESULT_OK) {
-	        if (!data.getBooleanExtra("i_am_the_server", true)) {
-	            // I'm the Client, so get the data
-	            messages = data.getStringArrayListExtra("messages");
-	        }
-	    }
-	}
-	...
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    if (requestCode == DATA_EXCHANGE_REQUEST) {
+        if (resultCode == RESULT_OK) {
+            val messages: List<String> = data?.getStringArrayListExtra(ServerTransferActivity.PARAM_MESSAGES)
+                    ?: emptyList()
+            setOnFinishMessage(messages)
+        }
+    }
 }
 ```
-
-## Diagrams
-Some UML diagrams are available for this project:
-* [Class diagram](/diagrams/class_diagram.png).
-* [Sequence diagram (Server device)](/diagrams/seq_diagram_server.png).
-* [Sequence diagram (Client device)](/diagrams/seq_diagram_client.png).
 
 ## Dependencies
 android-qr-data-transfer depends on the following external libraries:
