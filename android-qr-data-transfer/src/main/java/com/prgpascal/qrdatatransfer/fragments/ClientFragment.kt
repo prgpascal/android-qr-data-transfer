@@ -33,7 +33,6 @@ import kotlinx.android.synthetic.main.aqrdt_client_fragment.*
  */
 class ClientFragment : Fragment() {
     private lateinit var clientCallback: ClientInterface
-    private var canScan = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.aqrdt_client_fragment, container, false)
@@ -49,25 +48,14 @@ class ClientFragment : Fragment() {
         qrScanner.decodeContinuous(barcodeCallback)
     }
 
-    /**
-     * Callback for the Barcode reader.
-     * It receives BarcodeResult object that contains the incoming message.
-     * This callback will read for incoming messages and if canScan is set to TRUE, it passes them to
-     * the Activity, which will parse it.
-     * If a message has already been read, or canScan is FALSE, it will be ignored.
-     */
     private val barcodeCallback = object : BarcodeCallback {
         override fun barcodeResult(result: BarcodeResult) {
-            if (!TextUtils.isEmpty(result.text) && canScan) {
+            if (!TextUtils.isEmpty(result.text)) {
                 clientCallback.messageReceived(result.text)
             }
         }
 
         override fun possibleResultPoints(resultPoints: List<ResultPoint>) {}
-    }
-
-    fun canScan(canScan: Boolean) {
-        this.canScan = canScan
     }
 
     override fun onResume() {

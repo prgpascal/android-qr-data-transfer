@@ -21,7 +21,7 @@
     android:background="@color/white">
 
     <TextView
-        android:id="@+id/qr_info"
+        android:id="@+id/qrInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -37,10 +37,10 @@
         android:text="@string/aqrdt_instructions_show_to_client"/>
 
     <ImageView
-        android:id="@+id/qr_viewer"
+        android:id="@+id/qrViewer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/qr_info"
+        android:layout_below="@id/qrInfo"
         android:layout_above="@id/instructions"/>
 
 </RelativeLayout>

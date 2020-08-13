@@ -19,8 +19,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
-import android.net.wifi.p2p.WifiP2pDevice
-import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.widget.Toast
 import com.prgpascal.qrdatatransfer.R
@@ -36,65 +34,14 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     private var messages = ArrayList<String>()
     private var previousMessageAck: String? = null
 
-    private var peerDiscoveryFinished = false
-
-    private var serverIPAddress: String? = null
+    override fun isServer(): Boolean {
+        return false
+    }
 
     override fun createLayout() {
         setContentView(R.layout.aqrdt_transfer_activity)
         clientFragment = ClientFragment()
         supportFragmentManager.beginTransaction().add(R.id.fragment_container, clientFragment!!).commit()
-    }
-
-    override fun onWifiConnectionInfoReceived(info: WifiP2pInfo) {
-        if (info.groupFormed) {
-            isConnected = true
-            if (!info.isGroupOwner) {
-                serverIPAddress = info.groupOwnerAddress.hostAddress
-                startTransmission()
-            } else {
-                // Error, the Client is the Group Owner. Devices must be inverted!
-                Toast.makeText(applicationContext, R.string.aqrdt_error_invert_devices, Toast.LENGTH_SHORT).show()
-                finishTransmissionWithError()
-            }
-        }
-    }
-
-    fun startTransmission() {
-        makeQrScanAvailable(true)
-    }
-
-    override fun onWifiDisconnected() {
-        if (isConnected && !isFinishingTransmission) {
-            finishTransmissionWithError()
-        }
-    }
-
-    override fun onWifiPeersChanged() {
-        if (!peerDiscoveryFinished) {
-            peerDiscoveryFinished = true
-            makeQrScanAvailable(true)
-        }
-    }
-
-    override fun onWifiThisDeviceChanged(thisDevice: WifiP2pDevice) {}
-
-    private fun connect(serverMacAddress: String) {
-        val otherDeviceConfig = WifiP2pConfig()
-        otherDeviceConfig.deviceAddress = serverMacAddress
-        otherDeviceConfig.wps.setup = WpsInfo.PBC
-        otherDeviceConfig.groupOwnerIntent = 0 // I want the other device (the Server) to be the Group Owner !!
-
-        manager.connect(channel, otherDeviceConfig, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                // WiFiDirectBroadcastReceiver will notify us.
-            }
-
-            override fun onFailure(reason: Int) {
-                Toast.makeText(applicationContext, R.string.aqrdt_error_connection_failed, Toast.LENGTH_SHORT).show()
-                finishTransmissionWithError()
-            }
-        })
     }
 
     override fun messageReceived(message: String) {
@@ -105,22 +52,22 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
             val digest: String = getDigestFromMessage(message)
 
             if (digest == calculateDigest(content)) {
-                // Digest OK.
                 when {
                     content.startsWith(TAG_MAC) -> {
                         // MAC message, the First QR code of the transmission.
                         // It contains the Server MAC address.
                         // Start the connection with the Server.
                         // DISABLE further QR codes scan, until connection is not established.
-                        makeQrScanAvailable(false)
-                        val mac: String = content.substring(TAG_MAC.length)
-                        connect(mac)
+                        if (status != Status.PAIRED && status != Status.PAIRING) {
+                            val mac: String = content.substring(TAG_MAC.length)
+                            connect(mac)
+                        }
                     }
 
                     content == TAG_EOT -> {
                         // EOT message, End of Transmission reached
                         if (ack != previousMessageAck) {
-                            isFinishingTransmission = true
+                            status = Status.FINISHING_TRANSMISSION
                             finishTransmissionWithSuccess()
                         }
                         sendAckToServer(ack)
@@ -144,6 +91,26 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         }
     }
 
+    private fun connect(serverMacAddress: String) {
+        status = Status.PAIRING
+
+        val otherDeviceConfig = WifiP2pConfig()
+        otherDeviceConfig.deviceAddress = serverMacAddress
+        otherDeviceConfig.wps.setup = WpsInfo.PBC
+        otherDeviceConfig.groupOwnerIntent = 0 // I want the other device (the Server) to be the Group Owner !!
+
+        wiFiManager.connect(wiFiChannel, otherDeviceConfig, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                // WiFiDirectBroadcastReceiver will notify us.
+            }
+
+            override fun onFailure(reason: Int) {
+                Toast.makeText(applicationContext, R.string.aqrdt_error_connection_failed, Toast.LENGTH_SHORT).show()
+                finishTransmissionWithError()
+            }
+        })
+    }
+
     private fun sendAckToServer(ack: String) {
         val sendMessageIntent = Intent(this, ClientAckSender::class.java)
         sendMessageIntent.action = ACTION_SEND_ACK
@@ -151,10 +118,6 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         sendMessageIntent.putExtra(HOST, serverIPAddress)
         sendMessageIntent.putExtra(PORT, SERVER_PORT)
         startService(sendMessageIntent)
-    }
-
-    private fun makeQrScanAvailable(value: Boolean) {
-        clientFragment!!.canScan(value)
     }
 
     private fun finishTransmissionWithSuccess() {

@@ -18,9 +18,7 @@ package com.prgpascal.qrdatatransfer.activities
 import android.app.Activity
 import android.content.Intent
 import android.net.wifi.p2p.WifiP2pDevice
-import android.net.wifi.p2p.WifiP2pInfo
 import android.os.Bundle
-import android.widget.Toast
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ServerFragment
 import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
@@ -41,12 +39,15 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
     private var messagesIndex = 0
     private var messageAttendedAck: String? = null
 
+    override fun isServer(): Boolean {
+        return false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         getIntentExtras()
         super.onCreate(savedInstanceState)
     }
 
-    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun getIntentExtras() {
         val extras = intent.extras
         if (extras != null && extras.containsKey(MESSAGES)) {
@@ -65,29 +66,16 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
 
     public override fun onStop() {
         super.onStop()
-        stopServerReceiver()
+        stopServerAckReceiver()
     }
 
-    private fun stopServerReceiver() {
+    private fun stopServerAckReceiver() {
         serverAckReceiver?.stopSocket()
         serverAckReceiver?.cancel(true)
     }
 
-    override fun onWifiConnectionInfoReceived(info: WifiP2pInfo) {
-        if (info.groupFormed) {
-            isConnected = true
-            if (info.isGroupOwner) {
-                startTransmission()
-            } else {
-                // Error, the Server is not the Group Owner. Devices must be inverted!
-                Toast.makeText(applicationContext, R.string.aqrdt_error_invert_devices, Toast.LENGTH_SHORT).show()
-                finishTransmissionWithError()
-            }
-        }
-    }
-
-    fun startTransmission() {
-        // Instantiate the ServerAckReceiver
+    override fun startTransmission() {
+        super.startTransmission()
         if (serverAckReceiver == null) {
             serverAckReceiver = ServerAckReceiver(this@ServerTransferActivity)
             serverAckReceiver!!.execute()
@@ -95,54 +83,40 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         sendNextMessageAsQrCode()
     }
 
-    override fun onWifiDisconnected() {
-        if (isConnected && !isFinishingTransmission) {
-            finishTransmissionWithError()
-        }
-    }
-
-    override fun onWifiPeersChanged() {}
-
     override fun onWifiThisDeviceChanged(thisDevice: WifiP2pDevice) {
-        if (messageAttendedAck == null) {
+        if (status != Status.PAIRING && status != Status.PAIRED) {
             serverMacAddress = thisDevice.deviceAddress
-            sendFirstMessageAsQR()
+            sendConfigurationMessageAsQr()
         }
     }
 
-    private fun sendFirstMessageAsQR() {
+    private fun sendConfigurationMessageAsQr() {
+        status = Status.PAIRING
         sendMessageAsQR(TAG_MAC + serverMacAddress)
     }
 
     override fun ackReceived(ack: String) {
-        // ACK received via Wifi Direct
         if (ack == messageAttendedAck) {
-            // The Ack is correct.
-            // Now, check if I've reached the EOT.
-            if (isFinishingTransmission) {
-                // EOT ack received, End of Transmission reached.
-                // Finish the transmission with success.
+            if (status == Status.FINISHING_TRANSMISSION) {
                 finishTransmissionWithSuccess()
             } else {
                 sendNextMessageAsQrCode()
             }
-        } else {
-            // The Ack is incorrect (irreversible error).
-            // Finish the Activity.
-            //finishTransmissionWithError()
         }
     }
 
     private fun sendNextMessageAsQrCode() {
-        if (messagesIndex < messages.size) {
-            val nextMessage = messages[messagesIndex]
-            messagesIndex++
-            if (nextMessage == TAG_EOT) {
-                // This is the last message. Start finishing the transmission
-                isFinishingTransmission = true
-            }
+        if (status == Status.IN_TRANSMISSION) {
+            if (messagesIndex < messages.size) {
+                val nextMessage = messages[messagesIndex]
+                messagesIndex++
+                if (nextMessage == TAG_EOT) {
+                    // This is the last message. Start finishing the transmission
+                    status = Status.FINISHING_TRANSMISSION
+                }
 
-            sendMessageAsQR(nextMessage)
+                sendMessageAsQR(nextMessage)
+            }
         }
     }
 

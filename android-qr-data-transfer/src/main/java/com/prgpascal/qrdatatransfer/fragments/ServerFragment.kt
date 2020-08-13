@@ -47,8 +47,8 @@ class ServerFragment : Fragment() {
     fun updateQR(message: String, currentQrNumber: Int, totalQrNumber: Int) {
         try {
             val bitmap: Bitmap = encodeAsBitmap(qrWidth, qrHeight, message)
-            qr_viewer.setImageBitmap(bitmap)
-            qr_info.text = getString(R.string.aqrt_qr_counter, currentQrNumber, totalQrNumber)
+            qrViewer.setImageBitmap(bitmap)
+            qrInfo.text = getString(R.string.aqrt_qr_counter, currentQrNumber, totalQrNumber)
         } catch (e: WriterException) {
             e.printStackTrace()
         }
