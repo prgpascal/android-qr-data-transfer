@@ -177,7 +177,7 @@ abstract class BaseTransferActivity : PermissionsActivity(), ChannelListener, Wi
                     }
                 })
             }
-            delay(1000L)
+            delay(10000L)
         }
     }
 
