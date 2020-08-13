@@ -67,7 +67,7 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
         if (resultCode == RESULT_OK) {
             val messages: List<String> = data?.getStringArrayListExtra(ServerTransferActivity.PARAM_MESSAGES)
                     ?: emptyList()
-            setOnFinishMessage(messages)
+            ...
         }
     }
 }
