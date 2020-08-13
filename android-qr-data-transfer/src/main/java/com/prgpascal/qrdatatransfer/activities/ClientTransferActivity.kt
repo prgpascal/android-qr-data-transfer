@@ -77,6 +77,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                         // Regular message
                         if (ack != previousMessageAck) {
                             messages.add(content)
+                            previousMessageAck = ack
                         }
                         sendAckToServer(ack)
                     }
