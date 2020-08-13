@@ -1,9 +1,0 @@
-language: android
-android:
-  components:
-    - android-29
-    - build-tools-29.0.2
-
-env:
-  global:
-    - ADB_INSTALL_TIMEOUT=8
