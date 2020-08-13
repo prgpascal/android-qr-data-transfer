@@ -27,9 +27,6 @@ import android.os.Parcelable
 import android.widget.Toast
 import com.prgpascal.qrdatatransfer.R
 
-/**
- * BroadcastReceiver for Wifi events.
- */
 class WiFiDirectBroadcastReceiver(private val wifiManager: WifiP2pManager,
                                   private val wifiChannel: WifiP2pManager.Channel,
                                   private val wifiCallback: WifiDirectCallbackInterface) : BroadcastReceiver() {
@@ -64,8 +61,6 @@ class WiFiDirectBroadcastReceiver(private val wifiManager: WifiP2pManager,
             }
 
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
-                // This device's wifi p2p connection state changed.
-                // Update this device's info
                 val thisDevice = intent.getParcelableExtra<WifiP2pDevice>(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE)
                 if (thisDevice != null) {
                     wifiCallback.onWifiThisDeviceChanged(thisDevice)

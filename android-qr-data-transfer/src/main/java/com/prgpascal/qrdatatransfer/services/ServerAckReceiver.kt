@@ -25,11 +25,6 @@ import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.nio.charset.Charset
 
-/**
- * AsyncTask that waits for incoming socket connections.
- * (Infinite loop).
- * FOR SERVER!!!
- */
 class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
     private val serverCallback: ServerInterface = context as ServerInterface
     private val context = context as ServerTransferActivity

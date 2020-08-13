@@ -51,7 +51,7 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
     private fun getIntentExtras() {
         val extras = intent.extras
         if (extras != null && extras.containsKey(MESSAGES)) {
-            messages = intent.getStringArrayListExtra(MESSAGES)
+            messages = intent.getStringArrayListExtra(MESSAGES) ?: arrayListOf()
             messages.add(TAG_EOT) // Append the End Of Transmission (EOT) as the last message.
         } else {
             finishTransmissionWithError()

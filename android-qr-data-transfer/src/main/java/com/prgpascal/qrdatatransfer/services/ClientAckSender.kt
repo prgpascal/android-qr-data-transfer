@@ -24,10 +24,6 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.charset.Charset
 
-/**
- * IntentService class used for the transmission of the Ack messages to
- * the Server peer.
- */
 class ClientAckSender : IntentService(TAG) {
     companion object {
         const val TAG = "ClientAckSender"

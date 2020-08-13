@@ -26,11 +26,6 @@ import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.utils.encodeAsBitmap
 import kotlinx.android.synthetic.main.aqrdt_server_fragment.*
 
-/**
- * Fragment that contains the ImageView used for QR transmission.
- * For the QR generation see here:
- * http://stackoverflow.com/questions/28827407/generate-designer-2d-qr-code-in-android/30529519#30529519
- */
 class ServerFragment : Fragment() {
     private val qrWidth = 600
     private val qrHeight = 600
@@ -39,11 +34,6 @@ class ServerFragment : Fragment() {
         return inflater.inflate(R.layout.aqrdt_server_fragment, container, false)
     }
 
-    /**
-     * Update the QR ImageView with a new QR code containing the given message.
-     *
-     * @param message the message to be encoded into a new QR code.
-     */
     fun updateQR(message: String, currentQrNumber: Int, totalQrNumber: Int) {
         try {
             val bitmap: Bitmap = encodeAsBitmap(qrWidth, qrHeight, message)

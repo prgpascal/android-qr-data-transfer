@@ -27,10 +27,6 @@ import com.journeyapps.barcodescanner.BarcodeResult
 import com.prgpascal.qrdatatransfer.R
 import kotlinx.android.synthetic.main.aqrdt_client_fragment.*
 
-/**
- * Fragment that contains the QR code reader.
- * It is instantiated by the Client.
- */
 class ClientFragment : Fragment() {
     private lateinit var clientCallback: ClientInterface
 
