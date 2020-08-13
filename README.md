@@ -1,4 +1,7 @@
 # android-qr-data-transfer
+[![](https://jitpack.io/v/prgpascal/android-qr-data-transfer.svg)](https://jitpack.io/#prgpascal/android-qr-data-transfer)
+
+
 Library that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
 ## Why is it secure?
 Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement ([ACK](https://en.wikipedia.org/wiki/Acknowledgement_(data_networks))) messages only. 
