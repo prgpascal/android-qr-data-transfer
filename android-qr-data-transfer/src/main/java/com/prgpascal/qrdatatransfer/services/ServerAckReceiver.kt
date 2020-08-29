@@ -52,10 +52,8 @@ class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
                 // Read the input data
                 val inputStream = socket.inputStream
                 try {
-
-
-                    val bytes = ByteArray(available)
-                    inputStream.read(bytes, 0, available)
+                    val bytes = ByteArray(2)
+                    inputStream.read(bytes, 0, 2)
                     ack = String(bytes, Charset.forName(CHARACTER_SET_EXPANDED))
 
                     if (!TextUtils.isEmpty(ack) && lastReceivedAck != ack) {
