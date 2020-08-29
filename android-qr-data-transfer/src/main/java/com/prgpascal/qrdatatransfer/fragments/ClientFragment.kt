@@ -29,6 +29,8 @@ import kotlinx.android.synthetic.main.aqrdt_client_fragment.*
 
 class ClientFragment : Fragment() {
     private lateinit var clientCallback: ClientInterface
+    private var lastRead = ""
+    private var lastReadMillis = -1L
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.aqrdt_client_fragment, container, false)
@@ -47,7 +49,12 @@ class ClientFragment : Fragment() {
     private val barcodeCallback = object : BarcodeCallback {
         override fun barcodeResult(result: BarcodeResult) {
             if (!TextUtils.isEmpty(result.text)) {
-                clientCallback.messageReceived(result.text)
+                if (result.text != lastRead || System.currentTimeMillis() >  lastReadMillis + 500) {
+                    clientCallback.messageReceived(result.text)
+
+                    lastRead = result.text
+                    lastReadMillis = System.currentTimeMillis()
+                }
             }
         }
 

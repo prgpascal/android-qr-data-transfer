@@ -16,32 +16,81 @@
 package com.prgpascal.qrdatatransfer.activities
 
 import android.app.Activity
-import android.content.Intent
-import android.net.wifi.WpsInfo
-import android.net.wifi.p2p.WifiP2pConfig
-import android.net.wifi.p2p.WifiP2pManager
-import android.widget.Toast
+import android.app.Dialog
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.content.*
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ClientFragment
 import com.prgpascal.qrdatatransfer.fragments.ClientInterface
 import com.prgpascal.qrdatatransfer.services.ClientAckSender
 import com.prgpascal.qrdatatransfer.utils.*
 import java.util.*
+import kotlin.collections.HashMap
 
 class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     private var clientFragment: ClientFragment? = null
+    private var serverMacAddress: String? = null
 
     private var messages = ArrayList<String>()
     private var previousMessageAck: String? = null
 
-    override fun isServer(): Boolean {
-        return false
-    }
+    var btDevicesMap = HashMap<String, BluetoothDevice>()
+    var btDevicesList = ArrayList<BluetoothDevice>()
+    var btDevicesAdapter: ArrayAdapter<String>? = null
 
     override fun createLayout() {
         setContentView(R.layout.aqrdt_transfer_activity)
         clientFragment = ClientFragment()
         supportFragmentManager.beginTransaction().add(R.id.fragment_container, clientFragment!!).commit()
+
+        btDevicesAdapter = ArrayAdapter(this, R.layout.aqrt_dialog_select_device)
+
+        // Add bonded (paired) devices
+        /*
+        for (device in BluetoothAdapter.getDefaultAdapter().bondedDevices) {
+            btDevicesMap[device.address] = device
+            btDevicesList.add(device)
+
+            // Add the name and address to an array adapter to show in a ListView
+            btDevicesAdapter?.add(device.name ?: "Unknown" + "\n" + device.address) // TODO
+        }*/
+
+        val filter = IntentFilter()
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+        filter.addAction(BluetoothDevice.ACTION_FOUND)
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+
+        registerReceiver(btDevicesReceiver, filter)
+
+        // Start the discovery
+        if (BluetoothAdapter.getDefaultAdapter().isDiscovering){
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
+        }
+        BluetoothAdapter.getDefaultAdapter().startDiscovery()
+
+        SelectDeviceDialog().show(supportFragmentManager, "aqrt_select_device")
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+    }
+
+    public override fun onStop() {
+        super.onStop()
+        unregisterReceiver(btDevicesReceiver)
+    }
+
+    fun onBtDeviceSelected(selectedDevice: BluetoothDevice) {
+        serverMacAddress = selectedDevice.address
+
+        BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
     }
 
     override fun messageReceived(message: String) {
@@ -52,27 +101,15 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
             val digest: String = getDigestFromMessage(message)
 
             if (digest == calculateDigest(content)) {
-                when {
-                    content.startsWith(TAG_MAC) -> {
-                        // MAC message, the First QR code of the transmission.
-                        // It contains the Server MAC address.
-                        // Start the connection with the Server.
-                        // DISABLE further QR codes scan, until connection is not established.
-                        if (status != Status.PAIRED && status != Status.PAIRING) {
-                            val mac: String = content.substring(TAG_MAC.length)
-                            connect(mac)
-                        }
-                    }
-
-                    content == TAG_EOT -> {
+                when (content) {
+                    TAG_EOT -> {
                         // EOT message, End of Transmission reached
                         if (ack != previousMessageAck) {
-                            status = Status.FINISHING_TRANSMISSION
+                            isFinishingTransmission = true
                             finishTransmissionWithSuccess()
                         }
                         sendAckToServer(ack)
                     }
-
                     else -> {
                         // Regular message
                         if (ack != previousMessageAck) {
@@ -83,42 +120,21 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                     }
                 }
             } else {
-                // Digest error
                 throw StringIndexOutOfBoundsException()
             }
         } catch (e: StringIndexOutOfBoundsException) {
-            // The message received is smaller than expected or error on digest.
             e.printStackTrace()
         }
     }
 
-    private fun connect(serverMacAddress: String) {
-        status = Status.PAIRING
-
-        val otherDeviceConfig = WifiP2pConfig()
-        otherDeviceConfig.deviceAddress = serverMacAddress
-        otherDeviceConfig.wps.setup = WpsInfo.PBC
-        otherDeviceConfig.groupOwnerIntent = 0 // I want the other device (the Server) to be the Group Owner !!
-
-        wiFiManager.connect(wiFiChannel, otherDeviceConfig, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                // WiFiDirectBroadcastReceiver will notify us.
-            }
-
-            override fun onFailure(reason: Int) {
-                Toast.makeText(applicationContext, R.string.aqrdt_error_connection_failed, Toast.LENGTH_SHORT).show()
-                finishTransmissionWithError()
-            }
-        })
-    }
-
     private fun sendAckToServer(ack: String) {
-        val sendMessageIntent = Intent(this, ClientAckSender::class.java)
-        sendMessageIntent.action = ACTION_SEND_ACK
-        sendMessageIntent.putExtra(ACK, ack)
-        sendMessageIntent.putExtra(HOST, serverIPAddress)
-        sendMessageIntent.putExtra(PORT, SERVER_PORT)
-        startService(sendMessageIntent)
+        if (serverMacAddress != null) {
+            val sendMessageIntent = Intent(this, ClientAckSender::class.java)
+            sendMessageIntent.action = ACTION_SEND_ACK
+            sendMessageIntent.putExtra(ACK, ack)
+            sendMessageIntent.putExtra(MAC_ADDRESS, serverMacAddress)
+            startService(sendMessageIntent)
+        }
     }
 
     private fun finishTransmissionWithSuccess() {
@@ -127,6 +143,47 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         returnIntent.putStringArrayListExtra(MESSAGES, messages)
         setResult(Activity.RESULT_OK, returnIntent)
         finish()
+    }
+
+    class SelectDeviceDialog : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val callback = activity as ClientTransferActivity
+            val builder = AlertDialog.Builder(activity as Context)
+            builder.setTitle("TODO")
+            builder.setAdapter(callback.btDevicesAdapter) { _, index: Int ->
+                callback.onBtDeviceSelected(callback.btDevicesList[index])
+            }
+
+            val dialog = builder.create()
+            dialog.setCancelable(false)
+            return dialog
+        }
+
+        override fun onCancel(dialog: DialogInterface) {
+            super.onCancel(dialog)
+            val callback = activity as ClientTransferActivity
+            callback.finishTransmissionWithError()
+            // TODO: toast di errore
+        }
+    }
+
+    private val btDevicesReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (BluetoothDevice.ACTION_FOUND == action) {
+                val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                if (device != null) {
+                    val deviceAddress = device.address
+                    if (!btDevicesMap.contains(deviceAddress)) {
+                        btDevicesMap[deviceAddress] = device
+
+                        btDevicesList.add(device)
+                        btDevicesAdapter?.add(device.name ?: "Unknown" + "\n" + device.address) // TODO
+                        btDevicesAdapter?.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
     }
 
 }

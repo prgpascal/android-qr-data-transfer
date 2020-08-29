@@ -16,42 +16,37 @@
 package com.prgpascal.qrdatatransfer.services
 
 import android.app.IntentService
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
+import android.widget.Toast
 import com.prgpascal.qrdatatransfer.utils.*
 import java.io.IOException
-import java.io.OutputStreamWriter
-import java.net.InetSocketAddress
-import java.net.Socket
 import java.nio.charset.Charset
 
-class ClientAckSender : IntentService(TAG) {
-    companion object {
-        const val TAG = "ClientAckSender"
-    }
+class ClientAckSender : IntentService("ClientAckSender") {
 
     override fun onHandleIntent(intent: Intent?) {
         if (intent?.action == ACTION_SEND_ACK) {
             val extras = intent.extras
             if (extras != null) {
                 val ack = extras.getString(ACK)
-                val host = extras.getString(HOST)
-                val port = extras.getInt(PORT)
+                val serverMacAddress: String? = extras.getString(MAC_ADDRESS)
 
-                if (ack != null && host != null && port != -1) {
-                    val socket = Socket()
+                if (ack != null && serverMacAddress != null) {
+                    val serverDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(serverMacAddress)
+                    val socket = serverDevice.createRfcommSocketToServiceRecord(T_UUID)
+
+                    socket.connect()
+
+                    // Send the Ack message
+                    val outputStream = socket.outputStream
                     try {
-                        // Connect the Socket
-                        socket.bind(null)
-                        socket.connect(InetSocketAddress(host, port), SOCKET_TIMEOUT)
-
-                        // Send the Ack message
-                        val out = OutputStreamWriter(socket.getOutputStream(), Charset.forName(CHARACTER_SET_EXPANDED))
-                        out.write(ack, 0, ack.length)
-                        out.flush()
-                        out.close()
-                    } catch (ioe: IOException) {
-                        ioe.printStackTrace()
+                        outputStream.write(ack.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
+                        outputStream.flush()
+                    } catch (e: Exception) {
+                        Toast.makeText(applicationContext, "eeeeeee client", Toast.LENGTH_SHORT).show()
                     } finally {
+                        outputStream.close()
                         if (socket.isConnected) {
                             try {
                                 socket.close()

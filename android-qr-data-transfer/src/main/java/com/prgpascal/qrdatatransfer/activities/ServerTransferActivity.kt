@@ -16,8 +16,8 @@
 package com.prgpascal.qrdatatransfer.activities
 
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.net.wifi.p2p.WifiP2pDevice
 import android.os.Bundle
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ServerFragment
@@ -33,15 +33,10 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
 
     private var serverAckReceiver: ServerAckReceiver? = null
     private var serverFragment: ServerFragment? = null
-    private var serverMacAddress: String? = null
 
     private var messages = ArrayList<String>()
     private var messagesIndex = 0
     private var messageAttendedAck: String? = null
-
-    override fun isServer(): Boolean {
-        return false
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         getIntentExtras()
@@ -58,46 +53,39 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         }
     }
 
+    private fun makeDiscoverable() {
+        if (BluetoothAdapter.getDefaultAdapter().scanMode != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            val makeDiscoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+            makeDiscoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 60)
+            startActivity(makeDiscoverableIntent)
+        }
+    }
+
     override fun createLayout() {
         setContentView(R.layout.aqrdt_transfer_activity)
-        serverFragment = ServerFragment()
+        serverFragment = ServerFragment(getNextQrMessage())
         supportFragmentManager.beginTransaction().add(R.id.fragment_container, serverFragment!!).commit()
+
+        makeDiscoverable()
     }
 
-    public override fun onStop() {
-        super.onStop()
-        stopServerAckReceiver()
-    }
-
-    private fun stopServerAckReceiver() {
-        serverAckReceiver?.stopSocket()
-        serverAckReceiver?.cancel(true)
-    }
-
-    override fun startTransmission() {
-        super.startTransmission()
+    override fun onStart() {
+        super.onStart()
         if (serverAckReceiver == null) {
             serverAckReceiver = ServerAckReceiver(this@ServerTransferActivity)
             serverAckReceiver!!.execute()
         }
-        sendNextMessageAsQrCode()
     }
 
-    override fun onWifiThisDeviceChanged(thisDevice: WifiP2pDevice) {
-        if (status != Status.PAIRING && status != Status.PAIRED) {
-            serverMacAddress = thisDevice.deviceAddress
-            sendConfigurationMessageAsQr()
-        }
-    }
-
-    private fun sendConfigurationMessageAsQr() {
-        status = Status.PAIRING
-        sendMessageAsQR(TAG_MAC + serverMacAddress)
+    public override fun onStop() {
+        super.onStop()
+        serverAckReceiver?.stopSocket()
+        serverAckReceiver?.cancel(true)
     }
 
     override fun ackReceived(ack: String) {
         if (ack == messageAttendedAck) {
-            if (status == Status.FINISHING_TRANSMISSION) {
+            if (isFinishingTransmission) {
                 finishTransmissionWithSuccess()
             } else {
                 sendNextMessageAsQrCode()
@@ -106,27 +94,31 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
     }
 
     private fun sendNextMessageAsQrCode() {
-        if (status == Status.IN_TRANSMISSION) {
-            if (messagesIndex < messages.size) {
-                val nextMessage = messages[messagesIndex]
-                messagesIndex++
-                if (nextMessage == TAG_EOT) {
-                    // This is the last message. Start finishing the transmission
-                    status = Status.FINISHING_TRANSMISSION
-                }
-
-                sendMessageAsQR(nextMessage)
-            }
+        val nextMessage = getNextQrMessage()
+        if (nextMessage != null) {
+            sendMessageAsQR(nextMessage)
         }
     }
 
-    private fun sendMessageAsQR(messageToSend: String) {
-        messageAttendedAck = createRandomString(ACK_LENGTH)
-        val digest: String? = calculateDigest(messageToSend)
+    private fun getNextQrMessage(): QrMessage? {
+        if (messagesIndex < messages.size) {
+            val nextMessage = messages[messagesIndex]
+            messagesIndex++
+            if (nextMessage == TAG_EOT) {
+                // This is the last message. Start finishing the transmission
+                isFinishingTransmission = true
+            }
 
-        // Update the Server Fragment
-        // +1 because the first QR is the Mac address QR
-        serverFragment!!.updateQR(messageAttendedAck + messageToSend + digest, messagesIndex + 1, messages.size + 1)
+            messageAttendedAck = createRandomString(ACK_LENGTH)
+            val digest: String? = calculateDigest(nextMessage)
+
+            return QrMessage(messageAttendedAck + nextMessage + digest, messagesIndex, messages.size)
+        }
+        return null
+    }
+
+    private fun sendMessageAsQR(messageToSend: QrMessage) {
+        serverFragment!!.updateQR(messageToSend)
     }
 
     private fun finishTransmissionWithSuccess() {

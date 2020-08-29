@@ -29,7 +29,10 @@ abstract class PermissionsActivity : FragmentActivity() {
     companion object {
         private const val PERMISSIONS_REQUEST = 111
         private val PERMISSIONS = arrayOf(
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_COARSE_LOCATION
         )
     }
 

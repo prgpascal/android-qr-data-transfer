@@ -15,48 +15,69 @@
  */
 package com.prgpascal.qrdatatransfer.services
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.os.AsyncTask
+import android.text.TextUtils
 import com.prgpascal.qrdatatransfer.activities.ServerTransferActivity
 import com.prgpascal.qrdatatransfer.utils.CHARACTER_SET_EXPANDED
-import com.prgpascal.qrdatatransfer.utils.SERVER_PORT
+import com.prgpascal.qrdatatransfer.utils.T_UUID
 import java.io.IOException
-import java.io.InputStreamReader
-import java.net.ServerSocket
 import java.nio.charset.Charset
 
 class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
     private val serverCallback: ServerInterface = context as ServerInterface
     private val context = context as ServerTransferActivity
-    private val serverSocket = ServerSocket(SERVER_PORT)
-    private lateinit var ack: String
+    private val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("TODO", T_UUID)
 
     override fun doInBackground(vararg p0: Void?): Void? {
-        try {
-            // Infinite loop that waits for incoming ACKs
-            while (true) {
+        var ack: String
+        var socket: BluetoothSocket
+        var lastReceivedAck = ""
 
+        // Infinite loop that waits for incoming ACKs
+        while (true) {
+
+            try {
                 // Wait for client connections (THIS IS A BLOCKING CALL!!)
-                val client = serverSocket.accept()
+                socket = serverSocket.accept()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                break
+            }
 
+            if (socket != null) {
                 // If this code is reached, a client has connected and transferred data
                 // Read the input data
-                val inputStreamReader = InputStreamReader(client.getInputStream(), Charset.forName(CHARACTER_SET_EXPANDED))
-                ack = ""
-                var data = inputStreamReader.read()
-                while (data != -1) {
-                    ack += data.toChar()
-                    data = inputStreamReader.read()
-                }
-                inputStreamReader.close()
+                val inputStream = socket.inputStream
+                try {
 
-                // Send the received Ack message to the callback
-                context.runOnUiThread { serverCallback.ackReceived(ack) }
+
+                    val bytes = ByteArray(available)
+                    inputStream.read(bytes, 0, available)
+                    ack = String(bytes, Charset.forName(CHARACTER_SET_EXPANDED))
+
+                    if (!TextUtils.isEmpty(ack) && lastReceivedAck != ack) {
+                        lastReceivedAck = ack
+                        context.runOnUiThread { serverCallback.ackReceived(ack) }
+                    }
+
+                } catch (e: Exception) {
+
+                } finally {
+                    inputStream.close()
+                    if (socket.isConnected) {
+                        try {
+                            socket.close()
+                        } catch (ioe: IOException) {
+                            ioe.printStackTrace()
+                        }
+                    }
+                }
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return null
         }
+        return null
     }
 
     fun stopSocket() {

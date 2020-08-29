@@ -43,7 +43,9 @@ const val MESSAGES = "messages"
 const val ACTION_SEND_ACK = "send_ack"
 const val ACK = "ack"
 const val HOST = "host"
+const val MAC_ADDRESS = "mac_address"
 const val PORT = "port"
+val T_UUID = UUID.fromString("974e8deb-2232-40fd-b56c-7a4c9b298248")
 
 const val SOCKET_TIMEOUT = 10000
 const val SERVER_PORT = 8988

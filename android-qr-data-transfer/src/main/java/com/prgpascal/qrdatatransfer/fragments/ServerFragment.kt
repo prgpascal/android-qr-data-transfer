@@ -23,10 +23,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.zxing.WriterException
 import com.prgpascal.qrdatatransfer.R
+import com.prgpascal.qrdatatransfer.utils.QrMessage
 import com.prgpascal.qrdatatransfer.utils.encodeAsBitmap
 import kotlinx.android.synthetic.main.aqrdt_server_fragment.*
 
-class ServerFragment : Fragment() {
+class ServerFragment(private val firstMessage: QrMessage?) : Fragment() {
     private val qrWidth = 600
     private val qrHeight = 600
 
@@ -34,11 +35,18 @@ class ServerFragment : Fragment() {
         return inflater.inflate(R.layout.aqrdt_server_fragment, container, false)
     }
 
-    fun updateQR(message: String, currentQrNumber: Int, totalQrNumber: Int) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (firstMessage != null) {
+            updateQR(firstMessage)
+        }
+    }
+
+    fun updateQR(qrMessage: QrMessage) {
         try {
-            val bitmap: Bitmap = encodeAsBitmap(qrWidth, qrHeight, message)
+            val bitmap: Bitmap = encodeAsBitmap(qrWidth, qrHeight, qrMessage.message)
             qrViewer.setImageBitmap(bitmap)
-            qrInfo.text = getString(R.string.aqrt_qr_counter, currentQrNumber, totalQrNumber)
+            qrInfo.text = getString(R.string.aqrt_qr_counter, qrMessage.currentQrNumber, qrMessage.totalQrNumber)
         } catch (e: WriterException) {
             e.printStackTrace()
         }
