@@ -28,77 +28,68 @@ import java.nio.charset.Charset
 
 
 class ServerAckReceiver : ViewModel() {
-    private val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("AQRT", T_UUID)
-    val lastReceivedAck = MutableLiveData<String>()
-
     private var isRunning = false
-    private var coroutine: Job? = null
+    val lastReceivedAckLiveData = MutableLiveData<String>()
 
     fun start() {
         if (!isRunning) {
-            val scope = CoroutineScope(Dispatchers.IO)
-            coroutine = scope.launch { receiveFromSocket() }
+            CoroutineScope(Dispatchers.IO).launch { receiveFromSocket() }
         }
     }
 
     fun stop() {
-        coroutine?.cancel()
         isRunning = false
-        try {
-            serverSocket.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
     }
 
-    suspend fun receiveFromSocket() = withContext(Dispatchers.IO) {
+    private suspend fun receiveFromSocket() = withContext(Dispatchers.IO) {
         isRunning = true
-        var ack: String
-        var socket: BluetoothSocket
+        val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("AQRT", T_UUID)
+        var socket: BluetoothSocket? = null
 
-        // Infinite loop that waits for incoming ACKs
-        while (true) {
-
-            if (!isRunning) {
-                return@withContext
-            }
+        while (isRunning) {
 
             try {
-                // Wait for client connections (THIS IS A BLOCKING CALL!!)
                 socket = serverSocket.accept()
             } catch (e: IOException) {
                 e.printStackTrace()
-                break
             }
 
-            if (socket != null) {
-                // If this code is reached, a client has connected and transferred data
-                // Read the input data
-                val inputStream = socket.inputStream
-                try {
-                    val bytes = ByteArray(1024)
-                    val length = inputStream.read(bytes)
+            if (socket != null && socket.isConnected) {
 
-                    ack = String(bytes, 0, length, Charset.forName(CHARACTER_SET_EXPANDED))
+                while (isRunning) {
+                    val inputStream = socket.inputStream
+                    try {
+                        val bytes = ByteArray(1024)
+                        val length = inputStream.read(bytes)
+                        val ack = String(bytes, 0, length, Charset.forName(CHARACTER_SET_EXPANDED))
 
-                    if (!TextUtils.isEmpty(ack) && lastReceivedAck.value != ack) {
-                        lastReceivedAck.postValue(ack)
-                    }
-
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    inputStream.close()
-                    if (socket.isConnected) {
-                        try {
-                            socket.close()
-                        } catch (ioe: IOException) {
-                            ioe.printStackTrace()
+                        if (!TextUtils.isEmpty(ack) && lastReceivedAckLiveData.value != ack) {
+                            lastReceivedAckLiveData.postValue(ack)
                         }
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    } finally {
+                        inputStream.close()
                     }
                 }
+
+                if (socket.isConnected) {
+                    try {
+                        socket.close()
+                    } catch (ioe: IOException) {
+                        ioe.printStackTrace()
+                    }
+                    try {
+                        serverSocket.close()
+                    } catch (ioe: IOException) {
+                        ioe.printStackTrace()
+                    }
+                }
+                cancel()
             }
         }
+        cancel()
     }
 
 }

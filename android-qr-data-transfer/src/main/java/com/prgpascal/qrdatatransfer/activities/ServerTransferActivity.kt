@@ -73,7 +73,7 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         val ackObserver = Observer<String> { ack ->
             ackReceived(ack)
         }
-        serverAckReceiverViewModel?.lastReceivedAck?.observe(this, ackObserver)
+        serverAckReceiverViewModel?.lastReceivedAckLiveData?.observe(this, ackObserver)
 
         makeDiscoverable()
     }

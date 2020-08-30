@@ -15,48 +15,79 @@
  */
 package com.prgpascal.qrdatatransfer.services
 
-import android.app.IntentService
 import android.bluetooth.BluetoothAdapter
-import android.content.Intent
-import android.widget.Toast
-import com.prgpascal.qrdatatransfer.utils.*
+import android.bluetooth.BluetoothSocket
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.prgpascal.qrdatatransfer.utils.CHARACTER_SET_EXPANDED
+import com.prgpascal.qrdatatransfer.utils.T_UUID
+import kotlinx.coroutines.*
 import java.io.IOException
 import java.nio.charset.Charset
 
-class ClientAckSender : IntentService("ClientAckSender") {
+class ClientAckSender : ViewModel() {
+    private var isRunning = false
 
-    override fun onHandleIntent(intent: Intent?) {
-        if (intent?.action == ACTION_SEND_ACK) {
-            val extras = intent.extras
-            if (extras != null) {
-                val ack = extras.getString(ACK)
-                val serverMacAddress: String? = extras.getString(MAC_ADDRESS)
+    val lastSentAckLiveData = MutableLiveData<String>()
 
-                if (ack != null && serverMacAddress != null) {
-                    val serverDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(serverMacAddress)
-                    val socket = serverDevice.createRfcommSocketToServiceRecord(T_UUID)
+    private var serverMacAddress: String? = null
+    private var ackToSend: String? = null
 
-                    socket.connect()
+    fun start(serverMacAddress: String) {
+        this.serverMacAddress = serverMacAddress
+        if (!isRunning) {
+            CoroutineScope(Dispatchers.IO).launch { sendAckToServer() }
+        }
+    }
 
-                    // Send the Ack message
-                    val outputStream = socket.outputStream
-                    try {
-                        outputStream.write(ack.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
-                        outputStream.flush()
-                    } catch (e: Exception) {
-                        Toast.makeText(applicationContext, "eeeeeee client", Toast.LENGTH_SHORT).show()
-                    } finally {
-                        outputStream.close()
-                        if (socket.isConnected) {
-                            try {
-                                socket.close()
-                            } catch (ioe: IOException) {
-                                ioe.printStackTrace()
-                            }
+    fun stop() {
+        isRunning = false
+    }
+
+    fun sendAck(ack: String) {
+        this.ackToSend = ack
+    }
+
+    suspend fun sendAckToServer() = withContext(Dispatchers.IO) {
+        isRunning = true
+        val serverDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(serverMacAddress)
+        var socket: BluetoothSocket? = null
+
+        while (isRunning) {
+
+            try {
+                socket = serverDevice.createRfcommSocketToServiceRecord(T_UUID)
+                socket.connect()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            if (socket != null && socket.isConnected) {
+
+                while (isRunning) {
+                    if (ackToSend != null && ackToSend != lastSentAckLiveData.value) {
+                        val outputStream = socket.outputStream
+                        try {
+                            outputStream.write(ackToSend?.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
+                            outputStream.flush()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        } finally {
+                            outputStream.close()
                         }
                     }
                 }
+
+                if (socket.isConnected) {
+                    try {
+                        socket.close()
+                    } catch (ioe: IOException) {
+                        ioe.printStackTrace()
+                    }
+                }
+                cancel()
             }
         }
+        cancel()
     }
 }

@@ -22,12 +22,15 @@ import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ClientFragment
 import com.prgpascal.qrdatatransfer.fragments.ClientInterface
 import com.prgpascal.qrdatatransfer.services.ClientAckSender
+import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
 import com.prgpascal.qrdatatransfer.utils.*
 import java.util.*
 import kotlin.collections.HashMap
@@ -42,6 +45,8 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     var btDevicesMap = HashMap<String, BluetoothDevice>()
     var btDevicesList = ArrayList<BluetoothDevice>()
     var btDevicesAdapter: ArrayAdapter<String>? = null
+
+    var viewModel: ClientAckSender? = null
 
     override fun createLayout() {
         setContentView(R.layout.aqrdt_transfer_activity)
@@ -74,20 +79,18 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         SelectDeviceDialog().show(supportFragmentManager, "aqrt_select_device")
     }
 
-    override fun onStart() {
-        super.onStart()
-
-    }
-
     public override fun onStop() {
         super.onStop()
         unregisterReceiver(btDevicesReceiver)
+        viewModel?.stop()
     }
 
     fun onBtDeviceSelected(selectedDevice: BluetoothDevice) {
         serverMacAddress = selectedDevice.address
-
         BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
+
+        viewModel = ViewModelProvider(this).get(ClientAckSender::class.java)
+        viewModel?.start(selectedDevice.address)
     }
 
     override fun messageReceived(message: String) {
@@ -101,11 +104,12 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                 when (content) {
                     TAG_EOT -> {
                         // EOT message, End of Transmission reached
+                        sendAckToServer(ack)
                         if (ack != previousMessageAck) {
                             isFinishingTransmission = true
-                            finishTransmissionWithSuccess()
+                            Toast.makeText(applicationContext, "FINITO", Toast.LENGTH_SHORT).show()
+                            // finishTransmissionWithSuccess()
                         }
-                        sendAckToServer(ack)
                     }
                     else -> {
                         // Regular message
@@ -125,13 +129,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     }
 
     private fun sendAckToServer(ack: String) {
-        if (serverMacAddress != null) {
-            val sendMessageIntent = Intent(this, ClientAckSender::class.java)
-            sendMessageIntent.action = ACTION_SEND_ACK
-            sendMessageIntent.putExtra(ACK, ack)
-            sendMessageIntent.putExtra(MAC_ADDRESS, serverMacAddress)
-            startService(sendMessageIntent)
-        }
+        viewModel?.sendAck(ack)
     }
 
     private fun finishTransmissionWithSuccess() {
