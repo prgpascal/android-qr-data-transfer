@@ -19,6 +19,8 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ServerFragment
 import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
@@ -32,6 +34,7 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
     }
 
     private var serverAckReceiver: ServerAckReceiver? = null
+    private var serverAckReceiverViewModel: ServerAckReceiver? = null
     private var serverFragment: ServerFragment? = null
 
     private var messages = ArrayList<String>()
@@ -66,21 +69,23 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         serverFragment = ServerFragment(getNextQrMessage())
         supportFragmentManager.beginTransaction().add(R.id.fragment_container, serverFragment!!).commit()
 
+        serverAckReceiverViewModel = ViewModelProvider(this).get(ServerAckReceiver::class.java)
+        val ackObserver = Observer<String> { ack ->
+            ackReceived(ack)
+        }
+        serverAckReceiverViewModel?.lastReceivedAck?.observe(this, ackObserver)
+
         makeDiscoverable()
     }
 
     override fun onStart() {
         super.onStart()
-        if (serverAckReceiver == null) {
-            serverAckReceiver = ServerAckReceiver(this@ServerTransferActivity)
-            serverAckReceiver!!.execute()
-        }
+        serverAckReceiverViewModel?.start()
     }
 
     public override fun onStop() {
         super.onStop()
-        serverAckReceiver?.stopSocket()
-        serverAckReceiver?.cancel(true)
+        serverAckReceiverViewModel?.stop()
     }
 
     override fun ackReceived(ack: String) {

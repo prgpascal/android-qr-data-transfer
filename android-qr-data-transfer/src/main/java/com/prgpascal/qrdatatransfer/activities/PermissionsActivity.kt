@@ -19,13 +19,13 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import com.prgpascal.qrdatatransfer.R
 import java.util.*
 
-abstract class PermissionsActivity : FragmentActivity() {
+abstract class PermissionsActivity : AppCompatActivity() {
     companion object {
         private const val PERMISSIONS_REQUEST = 111
         private val PERMISSIONS = arrayOf(

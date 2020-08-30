@@ -17,27 +17,51 @@ package com.prgpascal.qrdatatransfer.services
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothSocket
-import android.content.Context
-import android.os.AsyncTask
 import android.text.TextUtils
-import com.prgpascal.qrdatatransfer.activities.ServerTransferActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.prgpascal.qrdatatransfer.utils.CHARACTER_SET_EXPANDED
 import com.prgpascal.qrdatatransfer.utils.T_UUID
+import kotlinx.coroutines.*
 import java.io.IOException
 import java.nio.charset.Charset
 
-class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
-    private val serverCallback: ServerInterface = context as ServerInterface
-    private val context = context as ServerTransferActivity
-    private val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("TODO", T_UUID)
 
-    override fun doInBackground(vararg p0: Void?): Void? {
+class ServerAckReceiver : ViewModel() {
+    private val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("AQRT", T_UUID)
+    val lastReceivedAck = MutableLiveData<String>()
+
+    private var isRunning = false
+    private var coroutine: Job? = null
+
+    fun start() {
+        if (!isRunning) {
+            val scope = CoroutineScope(Dispatchers.IO)
+            coroutine = scope.launch { receiveFromSocket() }
+        }
+    }
+
+    fun stop() {
+        coroutine?.cancel()
+        isRunning = false
+        try {
+            serverSocket.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun receiveFromSocket() = withContext(Dispatchers.IO) {
+        isRunning = true
         var ack: String
         var socket: BluetoothSocket
-        var lastReceivedAck = ""
 
         // Infinite loop that waits for incoming ACKs
         while (true) {
+
+            if (!isRunning) {
+                return@withContext
+            }
 
             try {
                 // Wait for client connections (THIS IS A BLOCKING CALL!!)
@@ -52,17 +76,17 @@ class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
                 // Read the input data
                 val inputStream = socket.inputStream
                 try {
-                    val bytes = ByteArray(2)
-                    inputStream.read(bytes, 0, 2)
-                    ack = String(bytes, Charset.forName(CHARACTER_SET_EXPANDED))
+                    val bytes = ByteArray(1024)
+                    val length = inputStream.read(bytes)
 
-                    if (!TextUtils.isEmpty(ack) && lastReceivedAck != ack) {
-                        lastReceivedAck = ack
-                        context.runOnUiThread { serverCallback.ackReceived(ack) }
+                    ack = String(bytes, 0, length, Charset.forName(CHARACTER_SET_EXPANDED))
+
+                    if (!TextUtils.isEmpty(ack) && lastReceivedAck.value != ack) {
+                        lastReceivedAck.postValue(ack)
                     }
 
                 } catch (e: Exception) {
-
+                    e.printStackTrace()
                 } finally {
                     inputStream.close()
                     if (socket.isConnected) {
@@ -74,15 +98,6 @@ class ServerAckReceiver(context: Context) : AsyncTask<Void?, Void?, Void?>() {
                     }
                 }
             }
-        }
-        return null
-    }
-
-    fun stopSocket() {
-        try {
-            serverSocket.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
     }
 
