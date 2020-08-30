@@ -34,6 +34,7 @@ import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
 import com.prgpascal.qrdatatransfer.utils.*
 import java.util.*
 import kotlin.collections.HashMap
+import androidx.lifecycle.Observer
 
 class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     private var clientFragment: ClientFragment? = null
@@ -91,6 +92,12 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
 
         viewModel = ViewModelProvider(this).get(ClientAckSender::class.java)
         viewModel?.start(selectedDevice.address)
+        val ackObserver = Observer<String> { _ ->
+            if (isFinishingTransmission) {
+                finishTransmissionWithSuccess()
+            }
+        }
+        viewModel?.lastSentAckLiveData?.observe(this, ackObserver)
     }
 
     override fun messageReceived(message: String) {
@@ -104,12 +111,12 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                 when (content) {
                     TAG_EOT -> {
                         // EOT message, End of Transmission reached
-                        sendAckToServer(ack)
                         if (ack != previousMessageAck) {
                             isFinishingTransmission = true
                             Toast.makeText(applicationContext, "FINITO", Toast.LENGTH_SHORT).show()
-                            // finishTransmissionWithSuccess()
+                            //finishTransmissionWithSuccess()
                         }
+                        sendAckToServer(ack)
                     }
                     else -> {
                         // Regular message

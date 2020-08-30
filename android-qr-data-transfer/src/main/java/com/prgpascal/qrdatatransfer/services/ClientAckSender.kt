@@ -66,10 +66,21 @@ class ClientAckSender : ViewModel() {
 
                 while (isRunning && socket.isConnected) {
                     if (ackToSend != null && ackToSend != lastSentAckLiveData.value) {
+                        val sendingAck = ackToSend
                         val outputStream = socket.outputStream
+                        val inputStream = socket.inputStream
                         try {
-                            outputStream.write(ackToSend?.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
+                            outputStream.write(sendingAck?.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
                             outputStream.flush()
+
+                            val bytes = ByteArray(1024)
+                            val length = inputStream.read(bytes)
+                            val returnedAck = String(bytes, 0, length, Charset.forName(CHARACTER_SET_EXPANDED))
+
+                            if (returnedAck == sendingAck) {
+                                lastSentAckLiveData.postValue(returnedAck)
+                            }
+
                         } catch (e: Exception) {
                             e.printStackTrace()
                         } finally {

@@ -58,10 +58,14 @@ class ServerAckReceiver : ViewModel() {
 
                 while (isRunning && socket.isConnected) {
                     val inputStream = socket.inputStream
+                    val outputStream = socket.outputStream
                     try {
                         val bytes = ByteArray(1024)
                         val length = inputStream.read(bytes)
                         val ack = String(bytes, 0, length, Charset.forName(CHARACTER_SET_EXPANDED))
+
+                        outputStream.write(ack.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
+                        outputStream.flush()
 
                         if (!TextUtils.isEmpty(ack) && lastReceivedAckLiveData.value != ack) {
                             lastReceivedAckLiveData.postValue(ack)
@@ -71,6 +75,7 @@ class ServerAckReceiver : ViewModel() {
                         e.printStackTrace()
                     } finally {
                         inputStream.close()
+                        outputStream.close()
                     }
                 }
 
