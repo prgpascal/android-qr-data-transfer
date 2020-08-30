@@ -54,9 +54,9 @@ class ServerAckReceiver : ViewModel() {
                 e.printStackTrace()
             }
 
-            if (socket != null && socket.isConnected) {
+            if (socket != null) {
 
-                while (isRunning) {
+                while (isRunning && socket.isConnected) {
                     val inputStream = socket.inputStream
                     try {
                         val bytes = ByteArray(1024)
@@ -86,10 +86,8 @@ class ServerAckReceiver : ViewModel() {
                         ioe.printStackTrace()
                     }
                 }
-                cancel()
             }
         }
-        cancel()
     }
 
 }

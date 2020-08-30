@@ -62,9 +62,9 @@ class ClientAckSender : ViewModel() {
                 e.printStackTrace()
             }
 
-            if (socket != null && socket.isConnected) {
+            if (socket != null) {
 
-                while (isRunning) {
+                while (isRunning && socket.isConnected) {
                     if (ackToSend != null && ackToSend != lastSentAckLiveData.value) {
                         val outputStream = socket.outputStream
                         try {
@@ -85,9 +85,7 @@ class ClientAckSender : ViewModel() {
                         ioe.printStackTrace()
                     }
                 }
-                cancel()
             }
         }
-        cancel()
     }
 }
