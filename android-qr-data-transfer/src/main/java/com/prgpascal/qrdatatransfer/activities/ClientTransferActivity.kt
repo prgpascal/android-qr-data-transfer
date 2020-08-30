@@ -25,34 +25,34 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ClientFragment
 import com.prgpascal.qrdatatransfer.fragments.ClientInterface
-import com.prgpascal.qrdatatransfer.services.ClientAckSender
-import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
 import com.prgpascal.qrdatatransfer.utils.*
+import com.prgpascal.qrdatatransfer.viewmodels.ClientAckSenderViewModel
 import java.util.*
 import kotlin.collections.HashMap
-import androidx.lifecycle.Observer
+
+const val TAG_SELECT_DEVICE = "aqrt_select_device"
 
 class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
-    private var clientFragment: ClientFragment? = null
     private var serverMacAddress: String? = null
 
-    private var messages = ArrayList<String>()
+    private val receivedMessages = ArrayList<String>()
     private var previousMessageAck: String? = null
 
-    var btDevicesMap = HashMap<String, BluetoothDevice>()
-    var btDevicesList = ArrayList<BluetoothDevice>()
-    var btDevicesAdapter: ArrayAdapter<String>? = null
+    private val btIntentFilter = IntentFilter()
+    private val btDevicesMap = HashMap<String, BluetoothDevice>()
+    private val btDevicesList = ArrayList<BluetoothDevice>()
+    private lateinit var btDevicesAdapter: ArrayAdapter<String>
 
-    var viewModel: ClientAckSender? = null
+    private var viewModel: ClientAckSenderViewModel? = null
 
     override fun createLayout() {
         setContentView(R.layout.aqrdt_transfer_activity)
-        clientFragment = ClientFragment()
-        supportFragmentManager.beginTransaction().add(R.id.fragment_container, clientFragment!!).commit()
+        supportFragmentManager.beginTransaction().add(R.id.fragment_container, ClientFragment()).commit()
 
         btDevicesAdapter = ArrayAdapter(this, R.layout.aqrt_dialog_select_device)
 
@@ -60,24 +60,23 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         for (device in BluetoothAdapter.getDefaultAdapter().bondedDevices) {
             btDevicesMap[device.address] = device
             btDevicesList.add(device)
-            btDevicesAdapter?.add(device.name ?: "Unknown" + "\n" + device.address)
+            btDevicesAdapter.add(device.name ?: "Unknown" + "\n" + device.address)  // TODO
         }
 
-        val filter = IntentFilter()
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
-        filter.addAction(BluetoothDevice.ACTION_FOUND)
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
-
-        registerReceiver(btDevicesReceiver, filter)
+        btIntentFilter.addAction(BluetoothDevice.ACTION_FOUND)
 
         // Start the discovery
-        if (BluetoothAdapter.getDefaultAdapter().isDiscovering){
+        if (BluetoothAdapter.getDefaultAdapter().isDiscovering) {
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
         }
         BluetoothAdapter.getDefaultAdapter().startDiscovery()
 
-        SelectDeviceDialog().show(supportFragmentManager, "aqrt_select_device")
+        SelectDeviceDialog().show(supportFragmentManager, TAG_SELECT_DEVICE)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        registerReceiver(btDevicesReceiver, btIntentFilter)
     }
 
     public override fun onStop() {
@@ -90,18 +89,19 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         serverMacAddress = selectedDevice.address
         BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
 
-        viewModel = ViewModelProvider(this).get(ClientAckSender::class.java)
-        viewModel?.start(selectedDevice.address)
-        val ackObserver = Observer<String> { _ ->
+        viewModel = ViewModelProvider(this).get(ClientAckSenderViewModel::class.java)
+        viewModel!!.start(selectedDevice.address)
+        val ackObserver = Observer<String> { ackSent ->
+            previousMessageAck = ackSent
             if (isFinishingTransmission) {
+                // The last ACK was sent. Finish.
                 finishTransmissionWithSuccess()
             }
         }
-        viewModel?.lastSentAckLiveData?.observe(this, ackObserver)
+        viewModel!!.lastSentAckLiveData.observe(this, ackObserver)
     }
 
-    override fun messageReceived(message: String) {
-        // Messaged received via QR code scan
+    override fun qrMessageReceived(message: String) {
         try {
             val ack: String = getAckFromMessage(message)
             val content: String = getContentFromMessage(message)
@@ -113,16 +113,13 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                         // EOT message, End of Transmission reached
                         if (ack != previousMessageAck) {
                             isFinishingTransmission = true
-                            Toast.makeText(applicationContext, "FINITO", Toast.LENGTH_SHORT).show()
-                            //finishTransmissionWithSuccess()
                         }
                         sendAckToServer(ack)
                     }
                     else -> {
                         // Regular message
                         if (ack != previousMessageAck) {
-                            messages.add(content)
-                            previousMessageAck = ack
+                            receivedMessages.add(content)
                         }
                         sendAckToServer(ack)
                     }
@@ -142,7 +139,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     private fun finishTransmissionWithSuccess() {
         val returnIntent = Intent()
         returnIntent.putExtra(I_AM_THE_SERVER, false)
-        returnIntent.putStringArrayListExtra(MESSAGES, messages)
+        returnIntent.putStringArrayListExtra(MESSAGES, receivedMessages)
         setResult(Activity.RESULT_OK, returnIntent)
         finish()
     }
@@ -155,17 +152,14 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
             builder.setAdapter(callback.btDevicesAdapter) { _, index: Int ->
                 callback.onBtDeviceSelected(callback.btDevicesList[index])
             }
-
-            val dialog = builder.create()
-            dialog.setCancelable(false)
-            return dialog
+            return builder.create()
         }
 
         override fun onCancel(dialog: DialogInterface) {
             super.onCancel(dialog)
             val callback = activity as ClientTransferActivity
             callback.finishTransmissionWithError()
-            // TODO: toast di errore
+            Toast.makeText(context, "TODO error", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -180,8 +174,9 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                         btDevicesMap[deviceAddress] = device
 
                         btDevicesList.add(device)
-                        btDevicesAdapter?.add(device.name ?: "Unknown" + "\n" + device.address) // TODO
-                        btDevicesAdapter?.notifyDataSetChanged()
+                        btDevicesAdapter.add(device.name
+                                ?: "Unknown" + "\n" + device.address) // TODO
+                        btDevicesAdapter.notifyDataSetChanged()
                     }
                 }
             }

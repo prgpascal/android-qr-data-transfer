@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.prgpascal.qrdatatransfer.services
+package com.prgpascal.qrdatatransfer.viewmodels
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothSocket
@@ -25,13 +25,13 @@ import kotlinx.coroutines.*
 import java.io.IOException
 import java.nio.charset.Charset
 
-class ClientAckSender : ViewModel() {
+class ClientAckSenderViewModel : ViewModel() {
     private var isRunning = false
 
     val lastSentAckLiveData = MutableLiveData<String>()
 
     private var serverMacAddress: String? = null
-    private var ackToSend: String? = null
+    private var nextAckToSend: String? = null
 
     fun start(serverMacAddress: String) {
         this.serverMacAddress = serverMacAddress
@@ -45,10 +45,10 @@ class ClientAckSender : ViewModel() {
     }
 
     fun sendAck(ack: String) {
-        this.ackToSend = ack
+        this.nextAckToSend = ack
     }
 
-    suspend fun sendAckToServer() = withContext(Dispatchers.IO) {
+    private suspend fun sendAckToServer() = withContext(Dispatchers.IO) {
         isRunning = true
         val serverDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(serverMacAddress)
         var socket: BluetoothSocket? = null
@@ -65,19 +65,20 @@ class ClientAckSender : ViewModel() {
             if (socket != null) {
 
                 while (isRunning && socket.isConnected) {
-                    if (ackToSend != null && ackToSend != lastSentAckLiveData.value) {
-                        val sendingAck = ackToSend
+
+                    if (nextAckToSend != null && nextAckToSend != lastSentAckLiveData.value) {
+                        val ack = nextAckToSend
                         val outputStream = socket.outputStream
                         val inputStream = socket.inputStream
                         try {
-                            outputStream.write(sendingAck?.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
+                            outputStream.write(ack?.toByteArray(Charset.forName(CHARACTER_SET_EXPANDED)))
                             outputStream.flush()
 
                             val bytes = ByteArray(1024)
                             val length = inputStream.read(bytes)
                             val returnedAck = String(bytes, 0, length, Charset.forName(CHARACTER_SET_EXPANDED))
 
-                            if (returnedAck == sendingAck) {
+                            if (returnedAck == ack) {
                                 lastSentAckLiveData.postValue(returnedAck)
                             }
 

@@ -23,9 +23,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ServerFragment
-import com.prgpascal.qrdatatransfer.services.ServerAckReceiver
-import com.prgpascal.qrdatatransfer.services.ServerInterface
 import com.prgpascal.qrdatatransfer.utils.*
+import com.prgpascal.qrdatatransfer.viewmodels.ServerAckReceiverViewModel
+import com.prgpascal.qrdatatransfer.viewmodels.ServerInterface
 import java.util.*
 
 class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
@@ -33,9 +33,8 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
         const val PARAM_MESSAGES = MESSAGES
     }
 
-    private var serverAckReceiver: ServerAckReceiver? = null
-    private var serverAckReceiverViewModel: ServerAckReceiver? = null
-    private var serverFragment: ServerFragment? = null
+    private var viewModel: ServerAckReceiverViewModel? = null
+    private lateinit var serverFragment: ServerFragment
 
     private var messages = ArrayList<String>()
     private var messagesIndex = 0
@@ -67,25 +66,25 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
     override fun createLayout() {
         setContentView(R.layout.aqrdt_transfer_activity)
         serverFragment = ServerFragment(getNextQrMessage())
-        supportFragmentManager.beginTransaction().add(R.id.fragment_container, serverFragment!!).commit()
+        supportFragmentManager.beginTransaction().add(R.id.fragment_container, serverFragment).commit()
 
-        serverAckReceiverViewModel = ViewModelProvider(this).get(ServerAckReceiver::class.java)
+        viewModel = ViewModelProvider(this).get(ServerAckReceiverViewModel::class.java)
         val ackObserver = Observer<String> { ack ->
             ackReceived(ack)
         }
-        serverAckReceiverViewModel?.lastReceivedAckLiveData?.observe(this, ackObserver)
+        viewModel!!.lastReceivedAckLiveData.observe(this, ackObserver)
 
         makeDiscoverable()
     }
 
     override fun onStart() {
         super.onStart()
-        serverAckReceiverViewModel?.start()
+        viewModel?.start()
     }
 
     public override fun onStop() {
         super.onStop()
-        serverAckReceiverViewModel?.stop()
+        viewModel?.stop()
     }
 
     override fun ackReceived(ack: String) {
@@ -123,7 +122,7 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
     }
 
     private fun sendMessageAsQR(messageToSend: QrMessage) {
-        serverFragment!!.updateQR(messageToSend)
+        serverFragment.updateQR(messageToSend)
     }
 
     private fun finishTransmissionWithSuccess() {

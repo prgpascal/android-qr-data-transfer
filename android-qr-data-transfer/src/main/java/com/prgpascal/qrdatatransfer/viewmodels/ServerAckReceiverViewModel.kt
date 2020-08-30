@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.prgpascal.qrdatatransfer.services
+package com.prgpascal.qrdatatransfer.viewmodels
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothSocket
@@ -27,8 +27,9 @@ import java.io.IOException
 import java.nio.charset.Charset
 
 
-class ServerAckReceiver : ViewModel() {
+class ServerAckReceiverViewModel : ViewModel() {
     private var isRunning = false
+
     val lastReceivedAckLiveData = MutableLiveData<String>()
 
     fun start() {
