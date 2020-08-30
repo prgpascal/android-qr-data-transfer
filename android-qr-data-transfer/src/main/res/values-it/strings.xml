@@ -22,4 +22,7 @@
     <string name="aqrdt_instructions_show_to_client">Mostra questa schermata al Client</string>
     <string name="aqrdt_operation_enabling_wifi">Accensione Wi-Fi in corso…</string>
     <string name="aqrdt_error_no_permissions">Permessi non concessi</string>
+    <string name="aqrdt_unknown">Sconosciuto</string>
+    <string name="aqrdt_select_device">Scegli il dispositivo</string>
+    <string name="aqrdt_no_device_selected">Errore: nessun dispositivo selezionato</string>
 </resources>

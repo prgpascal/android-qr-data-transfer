@@ -23,4 +23,7 @@
     <string name="aqrdt_error_channel_lost">Channel lost </string>
     <string name="aqrdt_error_channel_lost_retry">Channel lost, please wait…</string>
     <string name="aqrdt_error_no_permissions">No permission granted</string>
+    <string name="aqrdt_unknown">Unknown</string>
+    <string name="aqrdt_select_device">Choose the device</string>
+    <string name="aqrdt_no_device_selected">Error: no device selected</string>
 </resources>

@@ -60,7 +60,8 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         for (device in BluetoothAdapter.getDefaultAdapter().bondedDevices) {
             btDevicesMap[device.address] = device
             btDevicesList.add(device)
-            btDevicesAdapter.add(device.name ?: "Unknown" + "\n" + device.address)  // TODO
+            btDevicesAdapter.add(device.name
+                    ?: getString(R.string.aqrdt_unknown) + "\n" + device.address)
         }
 
         btIntentFilter.addAction(BluetoothDevice.ACTION_FOUND)
@@ -148,7 +149,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val callback = activity as ClientTransferActivity
             val builder = AlertDialog.Builder(activity as Context)
-            builder.setTitle("TODO")
+            builder.setTitle(getString(R.string.aqrdt_select_device))
             builder.setAdapter(callback.btDevicesAdapter) { _, index: Int ->
                 callback.onBtDeviceSelected(callback.btDevicesList[index])
             }
@@ -159,7 +160,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
             super.onCancel(dialog)
             val callback = activity as ClientTransferActivity
             callback.finishTransmissionWithError()
-            Toast.makeText(context, "TODO error", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.aqrdt_no_device_selected, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -175,7 +176,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
 
                         btDevicesList.add(device)
                         btDevicesAdapter.add(device.name
-                                ?: "Unknown" + "\n" + device.address) // TODO
+                                ?: getString(R.string.aqrdt_unknown) + "\n" + device.address)
                         btDevicesAdapter.notifyDataSetChanged()
                     }
                 }
