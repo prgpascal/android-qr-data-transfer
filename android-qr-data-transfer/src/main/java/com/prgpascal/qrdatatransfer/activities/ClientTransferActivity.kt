@@ -51,14 +51,11 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         btDevicesAdapter = ArrayAdapter(this, R.layout.aqrt_dialog_select_device)
 
         // Add bonded (paired) devices
-        /*
         for (device in BluetoothAdapter.getDefaultAdapter().bondedDevices) {
             btDevicesMap[device.address] = device
             btDevicesList.add(device)
-
-            // Add the name and address to an array adapter to show in a ListView
-            btDevicesAdapter?.add(device.name ?: "Unknown" + "\n" + device.address) // TODO
-        }*/
+            btDevicesAdapter?.add(device.name ?: "Unknown" + "\n" + device.address)
+        }
 
         val filter = IntentFilter()
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
