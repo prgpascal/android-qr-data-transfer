@@ -38,34 +38,15 @@ const val CHARACTER_SET_EXPANDED = "ISO-8859-1"
 const val CHARACTER_SET = "ISO8859_1"
 const val SHA_ALGORITHM = "SHA-256"
 
-const val I_AM_THE_SERVER = "i_am_the_server" // Indicates if the current device may act as a Client or a Server
+const val I_AM_THE_SERVER = "i_am_the_server"
 const val MESSAGES = "messages"
-const val ACTION_SEND_ACK = "send_ack"
-const val ACK = "ack"
-const val HOST = "host"
-const val MAC_ADDRESS = "mac_address"
-const val PORT = "port"
-val T_UUID = UUID.fromString("974e8deb-2232-40fd-b56c-7a4c9b298248")
+val T_UUID: UUID = UUID.fromString("974e8deb-2232-40fd-b56c-7a4c9b298248")
 
-const val SOCKET_TIMEOUT = 10000
-const val SERVER_PORT = 8988
+const val TAG_EOT = "OTP_EOT"   // End Of Transmission message
+const val DIGEST_LENGTH = 32    // Number of bytes (characters) of the digest
+const val ACK_LENGTH = 2        // Number of bytes of the ACK
 
-const val TAG_EOT = "OTP_EOT" // End Of Transmission message
-const val TAG_MAC = "OTP_MAC:" // MAC address message
-const val DIGEST_LENGTH = 32 // Number of bytes (characters) of the digest
-const val ACK_LENGTH = 2 // Number of bytes of the ACK
 
-const val DEBUG_TAG = "qr-data-transfer"
-
-/**
- * Encode a message into a QR Bitmap.
- *
- * @param width   width of the bitmap
- * @param height  height of the bitmap
- * @param message message to be encoded
- * @throws EncodeException if the encode fails
- * @return the Bitmap of encoded QR code
- */
 fun encodeAsBitmap(width: Int, height: Int, message: String): Bitmap {
     try {
         val hints: MutableMap<EncodeHintType, Any?> = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java)
@@ -90,12 +71,6 @@ fun encodeAsBitmap(width: Int, height: Int, message: String): Bitmap {
     }
 }
 
-/**
- * Calculate the SHA-256 digest of a ISO-8859-1 String.
- *
- * @param message ISO-8859-1 String.
- * @return ISO-8859-1 digest String (32 bytes), or null if it failed
- */
 fun calculateDigest(message: String): String? {
     try {
         val sha256 = MessageDigest.getInstance(SHA_ALGORITHM)
@@ -110,12 +85,6 @@ fun calculateDigest(message: String): String? {
     return null
 }
 
-/**
- * Encode a byte Array into ISO-8859-1 String.
- *
- * @param bytes byte Array to be encoded.
- * @return ISO-8859-1 String representation, or null if encoding failed.
- */
 fun encodeISO88591(bytes: ByteArray?): String? {
     try {
         return String(bytes!!, charset(CHARACTER_SET_EXPANDED))
@@ -125,46 +94,18 @@ fun encodeISO88591(bytes: ByteArray?): String? {
     return null
 }
 
-/**
- * Pick the ACK of a given message.
- * (The first 2 bytes)
- *
- * @param message the message that contains the ack.
- * @return the ack of a message (first 2 bytes).
- */
 fun getAckFromMessage(message: String): String {
     return message.substring(0, ACK_LENGTH)
 }
 
-/**
- * Get the digest of a given message.
- * (The last 32 bytes)
- *
- * @param message the message that contains content + digest.
- * @return the digest of message (last 32 bytes).
- */
 fun getDigestFromMessage(message: String): String {
     return message.substring(message.length - DIGEST_LENGTH)
 }
 
-/**
- * Exclude the ACK and the digest from the message.
- * Return the message content.
- *
- * @param message the message.
- * @return the content of the message.
- */
 fun getContentFromMessage(message: String): String {
     return message.substring(ACK_LENGTH, message.length - DIGEST_LENGTH)
 }
 
-/**
- * Create an ISO-8859-1 String with random bytes.
- * It uses SecureRandom for a strong secure bytes generation.
- *
- * @param numberOfBytes number of output bytes.
- * @return ISO-8859-1 String with random bytes.
- */
 fun createRandomString(numberOfBytes: Int): String? {
     val random = SecureRandom()
     val bytes = ByteArray(numberOfBytes)
@@ -172,12 +113,10 @@ fun createRandomString(numberOfBytes: Int): String? {
     return encodeISO88591(bytes)
 }
 
-/** Lock the current screen orientation  */
 fun preventScreenRotation(context: Activity) {
     context.requestedOrientation = currentScreenOrientation(context)
 }
 
-/** Get the current screen orientation type  */
 private fun currentScreenOrientation(context: Context): Int {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     return when (context.resources.configuration.orientation) {

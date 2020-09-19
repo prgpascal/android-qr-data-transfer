@@ -15,5 +15,4 @@
  */
 package com.prgpascal.qrdatatransfer.utils
 
-class EncodeException(cause: Throwable) : Exception(cause) {
-}
+class EncodeException(cause: Throwable) : Exception(cause)

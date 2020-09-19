@@ -20,13 +20,8 @@
 
     <!-- MARGINS -->
     <dimen name="aqrdt_margin_medium">16dp</dimen>
-    <dimen name="aqrdt_margin_small">8dp</dimen>
 
     <!-- FONT SIZE -->
-    <dimen name="aqrdt_font_xlarge">24sp</dimen>
-    <dimen name="aqrdt_font_large">20sp</dimen>
     <dimen name="aqrdt_font_medium">16sp</dimen>
-    <dimen name="aqrdt_font_small">14sp</dimen>
-    <dimen name="aqrdt_font_xsmall">12sp</dimen>
 
 </resources>

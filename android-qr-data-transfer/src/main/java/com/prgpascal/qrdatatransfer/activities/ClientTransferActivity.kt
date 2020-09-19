@@ -56,7 +56,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
 
         btDevicesAdapter = ArrayAdapter(this, R.layout.aqrt_dialog_select_device)
 
-        // Add bonded (paired) devices
+        // Add bonded (already paired) devices
         for (device in BluetoothAdapter.getDefaultAdapter().bondedDevices) {
             btDevicesMap[device.address] = device
             btDevicesList.add(device)
@@ -66,7 +66,6 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
 
         btIntentFilter.addAction(BluetoothDevice.ACTION_FOUND)
 
-        // Start the discovery
         if (BluetoothAdapter.getDefaultAdapter().isDiscovering) {
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
         }
@@ -111,7 +110,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
             if (digest == calculateDigest(content)) {
                 when (content) {
                     TAG_EOT -> {
-                        // EOT message, End of Transmission reached
+                        // End of Transmission reached
                         if (ack != previousMessageAck) {
                             isFinishingTransmission = true
                         }
@@ -173,7 +172,6 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
                     val deviceAddress = device.address
                     if (!btDevicesMap.contains(deviceAddress)) {
                         btDevicesMap[deviceAddress] = device
-
                         btDevicesList.add(device)
                         btDevicesAdapter.add(device.name
                                 ?: getString(R.string.aqrdt_unknown) + "\n" + device.address)

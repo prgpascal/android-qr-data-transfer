@@ -22,10 +22,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.prgpascal.qrdatatransfer.utils.CHARACTER_SET_EXPANDED
 import com.prgpascal.qrdatatransfer.utils.T_UUID
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.nio.charset.Charset
 
+const val SOCKET_NAME = "AQRT"
 
 class ServerAckReceiverViewModel : ViewModel() {
     private var isRunning = false
@@ -44,7 +48,7 @@ class ServerAckReceiverViewModel : ViewModel() {
 
     private suspend fun receiveFromSocket() = withContext(Dispatchers.IO) {
         isRunning = true
-        val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord("AQRT", T_UUID)
+        val serverSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord(SOCKET_NAME, T_UUID)
         var socket: BluetoothSocket? = null
 
         while (isRunning) {

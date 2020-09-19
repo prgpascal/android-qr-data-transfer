@@ -21,7 +21,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.prgpascal.qrdatatransfer.utils.CHARACTER_SET_EXPANDED
 import com.prgpascal.qrdatatransfer.utils.T_UUID
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.nio.charset.Charset
 
