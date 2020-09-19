@@ -31,6 +31,8 @@ import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ClientFragment
 import com.prgpascal.qrdatatransfer.fragments.ClientInterface
 import com.prgpascal.qrdatatransfer.utils.*
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.I_AM_THE_SERVER
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_MESSAGES
 import com.prgpascal.qrdatatransfer.viewmodels.ClientAckSenderViewModel
 import java.util.*
 import kotlin.collections.HashMap
@@ -139,7 +141,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
     private fun finishTransmissionWithSuccess() {
         val returnIntent = Intent()
         returnIntent.putExtra(I_AM_THE_SERVER, false)
-        returnIntent.putStringArrayListExtra(MESSAGES, receivedMessages)
+        returnIntent.putStringArrayListExtra(PARAM_MESSAGES, receivedMessages)
         setResult(Activity.RESULT_OK, returnIntent)
         finish()
     }

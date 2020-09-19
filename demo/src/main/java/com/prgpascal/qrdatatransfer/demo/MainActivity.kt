@@ -20,9 +20,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.prgpascal.qrdatatransfer.activities.ClientTransferActivity
 import com.prgpascal.qrdatatransfer.activities.ServerTransferActivity
+import com.prgpascal.qrdatatransfer.utils.TransferParams
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         if (iAmTheServer()) {
             intent = Intent(this, ServerTransferActivity::class.java)
             val bundle = Bundle()
-            bundle.putStringArrayList(ServerTransferActivity.PARAM_MESSAGES, chunkedTextToTransfer)
+            bundle.putStringArrayList(TransferParams.PARAM_MESSAGES, chunkedTextToTransfer)
             intent.putExtras(bundle)
         } else {
             intent = Intent(this, ClientTransferActivity::class.java)
@@ -96,9 +98,12 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == DATA_EXCHANGE_REQUEST) {
             if (resultCode == RESULT_OK) {
-                val messages: List<String> = data?.getStringArrayListExtra(ServerTransferActivity.PARAM_MESSAGES)
+                val messages: List<String> = data?.getStringArrayListExtra(TransferParams.PARAM_MESSAGES)
                         ?: emptyList()
                 setOnFinishMessage(messages)
+            } else {
+                val error = data?.getStringExtra(TransferParams.PARAM_ERROR)
+                Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
             }
         }
     }

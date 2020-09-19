@@ -16,8 +16,13 @@
 package com.prgpascal.qrdatatransfer.activities
 
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_BT_DISABLED
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_BT_NOT_AVAILABLE
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.OPERATION_CANCELED
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_ERROR
 import com.prgpascal.qrdatatransfer.utils.preventScreenRotation
 
 abstract class BaseTransferActivity : PermissionsActivity() {
@@ -30,13 +35,25 @@ abstract class BaseTransferActivity : PermissionsActivity() {
     }
 
     override fun permissionsGranted() {
-        createLayout()
+        checkBluetooth()
+    }
+
+    private fun checkBluetooth() {
+        val btAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (btAdapter == null) {
+            finishTransmissionWithError(error = ERROR_BT_NOT_AVAILABLE)
+        } else if (!btAdapter.isEnabled) {
+            finishTransmissionWithError(error = ERROR_BT_DISABLED)
+        } else {
+            createLayout()
+        }
     }
 
     abstract fun createLayout()
 
-    fun finishTransmissionWithError() {
+    fun finishTransmissionWithError(error: String? = null) {
         val returnIntent = Intent()
+        returnIntent.putExtra(PARAM_ERROR, error ?: OPERATION_CANCELED)
         setResult(Activity.RESULT_CANCELED, returnIntent)
         finish()
     }

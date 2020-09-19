@@ -38,8 +38,7 @@ const val CHARACTER_SET_EXPANDED = "ISO-8859-1"
 const val CHARACTER_SET = "ISO8859_1"
 const val SHA_ALGORITHM = "SHA-256"
 
-const val I_AM_THE_SERVER = "i_am_the_server"
-const val MESSAGES = "messages"
+
 val T_UUID: UUID = UUID.fromString("974e8deb-2232-40fd-b56c-7a4c9b298248")
 
 const val TAG_EOT = "OTP_EOT"   // End Of Transmission message
