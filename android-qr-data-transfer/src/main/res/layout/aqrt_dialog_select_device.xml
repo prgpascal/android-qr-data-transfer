@@ -15,4 +15,7 @@
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/aqrdt_margin_medium"
+    android:padding="@dimen/aqrdt_margin_medium"
+    android:textSize="@dimen/aqrdt_font_medium" />
