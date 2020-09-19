@@ -103,7 +103,9 @@ class MainActivity : AppCompatActivity() {
                 setOnFinishMessage(messages)
             } else {
                 val error = data?.getStringExtra(TransferParams.PARAM_ERROR)
-                Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
+                if (error != null) {
+                    Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
