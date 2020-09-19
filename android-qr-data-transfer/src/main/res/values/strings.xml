@@ -19,5 +19,4 @@
     <string name="aqrdt_instructions_show_to_client">Show this screen to the Client</string>
     <string name="aqrdt_unknown">Unknown</string>
     <string name="aqrdt_select_device">Choose the device</string>
-    <string name="aqrdt_no_device_selected">Error: no device selected</string>
 </resources>

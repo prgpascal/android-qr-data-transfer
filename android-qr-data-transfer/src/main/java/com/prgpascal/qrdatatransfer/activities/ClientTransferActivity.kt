@@ -31,6 +31,7 @@ import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ClientFragment
 import com.prgpascal.qrdatatransfer.fragments.ClientInterface
 import com.prgpascal.qrdatatransfer.utils.*
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_NO_DEVICE_SELECTED
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.I_AM_THE_SERVER
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_MESSAGES
 import com.prgpascal.qrdatatransfer.viewmodels.ClientAckSenderViewModel
@@ -160,8 +161,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
         override fun onCancel(dialog: DialogInterface) {
             super.onCancel(dialog)
             val callback = activity as ClientTransferActivity
-            callback.finishTransmissionWithError()
-            Toast.makeText(context, R.string.aqrdt_no_device_selected, Toast.LENGTH_SHORT).show()
+            callback.finishTransmissionWithError(error = ERROR_NO_DEVICE_SELECTED)
         }
     }
 
