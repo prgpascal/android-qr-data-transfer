@@ -74,8 +74,7 @@ abstract class PermissionsActivity : AppCompatActivity() {
                 }
             }
             if (!allPermissionsGranted) {
-                Toast.makeText(applicationContext, getString(R.string.aqrdt_error_no_permissions), Toast.LENGTH_SHORT).show()
-                finish()
+                permissionsNotGranted()
             } else {
                 permissionsGranted()
             }
@@ -83,5 +82,7 @@ abstract class PermissionsActivity : AppCompatActivity() {
     }
 
     abstract fun permissionsGranted()
+
+    abstract fun permissionsNotGranted()
 
 }

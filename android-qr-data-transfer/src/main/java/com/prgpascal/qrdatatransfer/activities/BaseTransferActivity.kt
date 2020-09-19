@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_BT_DISABLED
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_BT_NOT_AVAILABLE
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_PERMISSIONS_NOT_GRANTED
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.OPERATION_CANCELED
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_ERROR
 import com.prgpascal.qrdatatransfer.utils.preventScreenRotation
@@ -36,6 +37,10 @@ abstract class BaseTransferActivity : PermissionsActivity() {
 
     override fun permissionsGranted() {
         checkBluetooth()
+    }
+
+    override fun permissionsNotGranted() {
+        finishTransmissionWithError(error = ERROR_PERMISSIONS_NOT_GRANTED)
     }
 
     private fun checkBluetooth() {

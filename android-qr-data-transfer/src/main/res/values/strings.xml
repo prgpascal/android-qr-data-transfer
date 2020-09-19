@@ -17,7 +17,6 @@
     <string name="aqrt_qr_counter" translatable="false">QR %1$d / %2$d</string>
     <string name="aqrdt_qr_viewer_cd" translatable="false">QR Viewer</string>
     <string name="aqrdt_instructions_show_to_client">Show this screen to the Client</string>
-    <string name="aqrdt_error_no_permissions">No permission granted</string>
     <string name="aqrdt_unknown">Unknown</string>
     <string name="aqrdt_select_device">Choose the device</string>
     <string name="aqrdt_no_device_selected">Error: no device selected</string>

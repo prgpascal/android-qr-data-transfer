@@ -22,6 +22,7 @@ class TransferParams {
         const val PARAM_ERROR = "ERROR"
         const val ERROR_BT_NOT_AVAILABLE = "ERROR_BT_NOT_AVAILABLE"
         const val ERROR_BT_DISABLED = "ERROR_BT_DISABLED"
+        const val ERROR_PERMISSIONS_NOT_GRANTED = "ERROR_PERMISSIONS_NOT_GRANTED"
         const val OPERATION_CANCELED = "OPERATION_CANCELED"
     }
 }
