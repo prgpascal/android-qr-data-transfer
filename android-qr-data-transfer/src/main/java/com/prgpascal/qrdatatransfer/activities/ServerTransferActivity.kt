@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.prgpascal.qrdatatransfer.R
 import com.prgpascal.qrdatatransfer.fragments.ServerFragment
 import com.prgpascal.qrdatatransfer.utils.*
-import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.I_AM_THE_SERVER
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_I_AM_THE_SERVER
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_MESSAGES
 import com.prgpascal.qrdatatransfer.viewmodels.ServerAckReceiverViewModel
 import com.prgpascal.qrdatatransfer.viewmodels.ServerInterface
@@ -125,7 +125,7 @@ class ServerTransferActivity : BaseTransferActivity(), ServerInterface {
 
     private fun finishTransmissionWithSuccess() {
         val returnIntent = Intent()
-        returnIntent.putExtra(I_AM_THE_SERVER, true)
+        returnIntent.putExtra(PARAM_I_AM_THE_SERVER, true)
         setResult(Activity.RESULT_OK, returnIntent)
         finish()
     }

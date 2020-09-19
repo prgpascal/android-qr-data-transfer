@@ -22,7 +22,7 @@ import android.os.Bundle
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_BT_DISABLED
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_BT_NOT_AVAILABLE
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_PERMISSIONS_NOT_GRANTED
-import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.OPERATION_CANCELED
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_OPERATION_CANCELED
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_ERROR
 import com.prgpascal.qrdatatransfer.utils.preventScreenRotation
 
@@ -58,7 +58,7 @@ abstract class BaseTransferActivity : PermissionsActivity() {
 
     fun finishTransmissionWithError(error: String? = null) {
         val returnIntent = Intent()
-        returnIntent.putExtra(PARAM_ERROR, error ?: OPERATION_CANCELED)
+        returnIntent.putExtra(PARAM_ERROR, error ?: ERROR_OPERATION_CANCELED)
         setResult(Activity.RESULT_CANCELED, returnIntent)
         finish()
     }

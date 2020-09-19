@@ -22,7 +22,6 @@ import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
@@ -32,7 +31,7 @@ import com.prgpascal.qrdatatransfer.fragments.ClientFragment
 import com.prgpascal.qrdatatransfer.fragments.ClientInterface
 import com.prgpascal.qrdatatransfer.utils.*
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.ERROR_NO_DEVICE_SELECTED
-import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.I_AM_THE_SERVER
+import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_I_AM_THE_SERVER
 import com.prgpascal.qrdatatransfer.utils.TransferParams.Companion.PARAM_MESSAGES
 import com.prgpascal.qrdatatransfer.viewmodels.ClientAckSenderViewModel
 import java.util.*
@@ -141,7 +140,7 @@ class ClientTransferActivity : BaseTransferActivity(), ClientInterface {
 
     private fun finishTransmissionWithSuccess() {
         val returnIntent = Intent()
-        returnIntent.putExtra(I_AM_THE_SERVER, false)
+        returnIntent.putExtra(PARAM_I_AM_THE_SERVER, false)
         returnIntent.putStringArrayListExtra(PARAM_MESSAGES, receivedMessages)
         setResult(Activity.RESULT_OK, returnIntent)
         finish()

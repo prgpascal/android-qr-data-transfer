@@ -17,13 +17,13 @@ package com.prgpascal.qrdatatransfer.utils
 
 class TransferParams {
     companion object {
-        const val I_AM_THE_SERVER = "i_am_the_server"
+        const val PARAM_I_AM_THE_SERVER = "i_am_the_server"
         const val PARAM_MESSAGES = "messages"
         const val PARAM_ERROR = "ERROR"
         const val ERROR_BT_NOT_AVAILABLE = "ERROR_BT_NOT_AVAILABLE"
         const val ERROR_BT_DISABLED = "ERROR_BT_DISABLED"
         const val ERROR_PERMISSIONS_NOT_GRANTED = "ERROR_PERMISSIONS_NOT_GRANTED"
         const val ERROR_NO_DEVICE_SELECTED = "ERROR_NO_DEVICE_SELECTED"
-        const val OPERATION_CANCELED = "OPERATION_CANCELED"
+        const val ERROR_OPERATION_CANCELED = "OPERATION_CANCELED"
     }
 }
