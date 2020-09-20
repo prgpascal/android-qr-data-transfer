@@ -3,8 +3,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=android,intellij,eclipse,java,windows,osx
 
 ### Custom
-gradlew.bat
-gradlew
 .idea/
 
 ### Android ###
