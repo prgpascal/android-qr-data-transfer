@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.github.prgpascal:android-qr-data-transfer:2.0.0'
+  implementation 'com.github.prgpascal:android-qr-data-transfer:2.0.0'
 }
 ```
 
