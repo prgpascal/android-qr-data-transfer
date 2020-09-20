@@ -1,33 +1,16 @@
 # android-qr-data-transfer
 [![](https://jitpack.io/v/prgpascal/android-qr-data-transfer.svg)](https://jitpack.io/#prgpascal/android-qr-data-transfer)
 
+Library that provides a secure data transmission channel between Android devices. It uses QR codes and Bluetooth technologies. 
 
-Library that provides a secure data transmission channel between Android devices. It uses QR codes and Wi-Fi Direct technologies. 
 ## Why is it secure?
-Because data is exchanged via sequences of QR codes, while a Wi-Fi Direct channel is used for acknowledgement ([ACK](https://en.wikipedia.org/wiki/Acknowledgement_(data_networks))) messages only. 
-
-## How it works
-* During the transmission, the sender device will act as a Server in a [Client-Server architecture](https://en.wikipedia.org/wiki/Client%E2%80%93server_model), while the receiver will act as a Client.
-* Server and Client turn on the Wi-Fi (if it's not already turned on).
-* Server and Client start the peer discovery.
-* The Server shows to the Client the first QR code, containing the MAC address (necessary for the Wi-Fi Direct connection).
-* Client uses its camera and captures the first QR code, parses the message and gets the Server MAC address.
-* Client establishes a Wi-Fi Direct connection with the Server.
-* While not all the messages have been exchanged:
-    1. The Server encodes a new message into a QR code and waits for the ACK response.
-    1. The Client reads the new QR code, gets the message and checks the digest:
-        * If the message is valid, sends the ACK response.
-        * If the message is not valid, tries reading the QR code again.
-    1. The Server receives the ACK response.
-        * If the ACK is not valid, stops the transmission with an error.
-* If the transmission finishes with success, the data is returned to the Client. Otherwise, an error message is shown.
+Because data is exchanged via sequences of QR codes, while a Bluetooth channel is used for acknowledgement ([ACK](https://en.wikipedia.org/wiki/Acknowledgement_(data_networks))) messages only. 
 
 ## Features
+* During the transmission, the sender device will act as a Server in a [Client-Server architecture](https://en.wikipedia.org/wiki/Client%E2%80%93server_model), while the receiver will act as a Client.
 * It uses the [stop-and-wait protocol](https://en.wikipedia.org/wiki/Stop-and-wait_ARQ).
 * It receives an *ArrayList\<String>* as input parameter, containing all the messages to be exchanged. For each *String* a new QR code will be created.
-* If the Wi-Fi Direct is disabled, the library will automatically turn it on.
 * Every exchanged message is checked with a digest ([SHA-256](https://en.wikipedia.org/wiki/SHA-2)).
-* If an error occurs, the entire process is interrupted and no data is returned to the receiver.
 
 ## Import dependency
 You can use JitPack to easily import this library into your project.  
@@ -46,32 +29,44 @@ dependencies {
 ```
 
 ## Usage
-The sender starts the Activity passing an *ArrayList\<String>* as parameter, containing the messages to be sent:
+A [demo module](/demo) is available as a working example.
+
+The Server starts the Activity passing an *ArrayList\<String>* as parameter, containing the messages to be sent:
 ```java
-val intent = Intent(this, ServerTransferActivity::class.java)
+intent = Intent(this, ServerTransferActivity::class.java)
 val bundle = Bundle()
-bundle.putStringArrayList(ServerTransferActivity.PARAM_MESSAGES, chunkedTextToTransfer)
+bundle.putStringArrayList(TransferParams.PARAM_MESSAGES, chunkedTextToTransfer)
 intent.putExtras(bundle)
 startActivityForResult(intent, DATA_EXCHANGE_REQUEST)
 ```
-The receiver starts the Activity:
+The Client starts the Activity:
 ```java
 intent = Intent(this, ClientTransferActivity::class.java)
 startActivityForResult(intent, DATA_EXCHANGE_REQUEST)
 ```
-The Client can handle the response in the *onActivityResult(...)* method:
-```java
+Client and Server can handle the response in the *onActivityResult(...)* method:
+```kotlin
 override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
-    if (requestCode == DATA_EXCHANGE_REQUEST) {
-        if (resultCode == RESULT_OK) {
-            val messages: List<String> = data?.getStringArrayListExtra(ServerTransferActivity.PARAM_MESSAGES)
-                    ?: emptyList()
-            ...
+        if (requestCode == DATA_EXCHANGE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                val messages: List<String> = data?.getStringArrayListExtra(TransferParams.PARAM_MESSAGES) ?: emptyList()
+                ...
+            } else {
+                val error = data?.getStringExtra(TransferParams.PARAM_ERROR)
+		...
+            }
         }
     }
-}
 ```
+The `TransferParams` class provides a set of different responses and errors returned by the library as IntentExtras:
+- `PARAM_I_AM_THE_SERVER`: `true` if the device handling the request is the Server, `false` otherwise.
+- `PARAM_MESSAGES`: List<String> of messages exchanged.
+- `PARAM_ERROR`: String representing an error that occured:
+	- `ERROR_BT_NOT_AVAILABLE`: if the device doesn't support Bluetooth.
+	- `ERROR_BT_DISABLED`: if the device have Bluetooth turned off.
+	- `ERROR_PERMISSIONS_NOT_GRANTED`: if the user didn't granted all the required runtime permissions.
+	- `ERROR_NO_DEVICE_SELECTED`: if the user did not selected a device in the Bluetooth devices list.
 
 ## Dependencies
 android-qr-data-transfer depends on the following external libraries:
