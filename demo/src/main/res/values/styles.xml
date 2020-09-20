@@ -14,14 +14,11 @@
     limitations under the License. -->
 
 <resources>
-    <!-- According to Material Design guidelines -->
-    <!-- https://www.google.com/design/spec/style/typography.html#typography-styles -->
-    <!-- https://www.google.com/design/spec/layout/metrics-keylines.html# -->
 
-    <!-- MARGINS -->
-    <dimen name="aqrdt_margin_medium">16dp</dimen>
-
-    <!-- FONT SIZE -->
-    <dimen name="aqrdt_font_medium">16sp</dimen>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
 </resources>

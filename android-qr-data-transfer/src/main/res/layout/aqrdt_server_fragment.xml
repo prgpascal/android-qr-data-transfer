@@ -16,12 +16,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:paddingTop="@dimen/aqrdt_margin_medium"
-    android:paddingBottom="@dimen/aqrdt_margin_medium"
-    android:background="@color/white">
+    android:paddingBottom="@dimen/aqrdt_margin_medium">
 
     <TextView
-        android:id="@+id/qr_info"
+        android:id="@+id/qrInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -33,14 +33,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:textSize="@dimen/aqrdt_font_medium"
-        android:text="@string/aqrdt_instructions_show_to_client"/>
+        android:text="@string/aqrdt_instructions_show_to_client"
+        android:textSize="@dimen/aqrdt_font_medium"/>
 
     <ImageView
-        android:id="@+id/qr_viewer"
+        android:id="@+id/qrViewer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/qr_info"
-        android:layout_above="@id/instructions"/>
+        android:layout_above="@id/instructions"
+        android:layout_below="@id/qrInfo"
+        android:contentDescription="@string/aqrdt_qr_viewer_cd" />
 
 </RelativeLayout>

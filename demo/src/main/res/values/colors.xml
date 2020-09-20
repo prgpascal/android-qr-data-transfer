@@ -14,14 +14,7 @@
     limitations under the License. -->
 
 <resources>
-    <!-- According to Material Design guidelines -->
-    <!-- https://www.google.com/design/spec/style/typography.html#typography-styles -->
-    <!-- https://www.google.com/design/spec/layout/metrics-keylines.html# -->
-
-    <!-- MARGINS -->
-    <dimen name="aqrdt_margin_medium">16dp</dimen>
-
-    <!-- FONT SIZE -->
-    <dimen name="aqrdt_font_medium">16sp</dimen>
-
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
 </resources>

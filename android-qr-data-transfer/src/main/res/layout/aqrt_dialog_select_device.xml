@@ -13,15 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License. -->
 
-<resources>
-    <!-- According to Material Design guidelines -->
-    <!-- https://www.google.com/design/spec/style/typography.html#typography-styles -->
-    <!-- https://www.google.com/design/spec/layout/metrics-keylines.html# -->
-
-    <!-- MARGINS -->
-    <dimen name="aqrdt_margin_medium">16dp</dimen>
-
-    <!-- FONT SIZE -->
-    <dimen name="aqrdt_font_medium">16sp</dimen>
-
-</resources>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/aqrdt_margin_medium"
+    android:padding="@dimen/aqrdt_margin_medium"
+    android:textSize="@dimen/aqrdt_font_medium" />
